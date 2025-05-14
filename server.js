@@ -6,7 +6,7 @@ const express = require('express');
    const sanitizeHtml = require('sanitize-html');
 
    const app = express();
-   const port = process.env.PORT || 7373;
+   const port = process.env.PORT || 8000;
 
    // Middleware
    app.use(express.urlencoded({ extended: true }));
