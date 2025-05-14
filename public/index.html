@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>EcoShyna</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="logoo.png" type="image/png">
 </head>
+
 <body>
   <div class="animated-bg"></div>
 
@@ -32,13 +36,15 @@
     </div>
     <div id="profile-sidenav" class="profile-sidenav" style="display:none;">
       <div class="profile-picture-container-sidenav">
-        <img id="profileImageSidenav" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Профиль" class="profile-image-round-sidenav">
+        <img id="profileImageSidenav" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Профиль"
+          class="profile-image-round-sidenav">
       </div>
       <span id="profileNameSidenav"></span>
       <button class="nav-btn" onclick="openProfileSettings(); closeSideNav();">Настройки</button>
       <button class="nav-btn logout-btn" onclick="logout(); closeSideNav();">Выйти</button>
     </div>
-    <a href="admin.html" style="display: block; padding: 10px; color: white; text-decoration: none;">Панель администратора</a>
+    <a href="admin.html" style="display: block; padding: 10px; color: white; text-decoration: none;">Панель
+      администратора</a>
   </aside>
 
   <div id="main-content">
@@ -76,7 +82,9 @@
 
       <section id="about" class="info-section interactive-section">
         <h2>О нашей компании</h2>
-        <p>EcoShyna - команда профессионалов, объединённых целью сделать наш мир чище. Мы используем передовые технологии для переработки изношенных шин, минимизируя вредное воздействие на окружающую среду. Наша миссия - не просто утилизировать отходы, а создавать из них новые, полезные продукты.</p>
+        <p>EcoShyna - команда профессионалов, объединённых целью сделать наш мир чище. Мы используем передовые технологии
+          для переработки изношенных шин, минимизируя вредное воздействие на окружающую среду. Наша миссия - не просто
+          утилизировать отходы, а создавать из них новые, полезные продукты.</p>
         <ul>
           <li>Современное оборудование и технологии.</li>
           <li>Строгий контроль качества на каждом этапе.</li>
@@ -120,7 +128,8 @@
         <form id="calc-form" onsubmit="return calcTyres(event)">
           <div class="form-group">
             <label for="tyre-weight">Вес шин (кг)</label>
-            <input type="number" id="tyre-weight" min="1" placeholder="Например, 100" required aria-describedby="tyre-weight-error">
+            <input type="number" id="tyre-weight" min="1" placeholder="Например, 100" required
+              aria-describedby="tyre-weight-error">
             <div id="tyre-weight-error" class="error-message" style="display:none;"></div>
           </div>
           <button class="btn-main" type="submit">Рассчитать</button>
@@ -165,7 +174,8 @@
             </div>
             <div class="form-group">
               <label for="req-phone">Телефон</label>
-              <input type="tel" id="req-phone" name="phone" required pattern="\+?[0-9\s\-\(\)]+" aria-describedby="req-phone-error">
+              <input type="tel" id="req-phone" name="phone" required pattern="\+?[0-9\s\-\(\)]+"
+                aria-describedby="req-phone-error">
               <div id="req-phone-error" class="error-message" style="display:none;"></div>
             </div>
             <div class="form-group">
@@ -222,7 +232,8 @@
             <span class="reviewer">- ООО "АвтоПлюс"</span>
           </div>
           <div class="review-item interactive-item">
-            <p>"В гараже скопилось немало шин за долгое время, решил отвезти всё на переработку в ЭкоШину, никогда ещё уборка не приносила удовольствия и денег😅"</p>
+            <p>"В гараже скопилось немало шин за долгое время, решил отвезти всё на переработку в ЭкоШину, никогда ещё уборка
+              не приносила удовольствия и денег😅"</p>
             <span class="reviewer">- Константин, частный клиент</span>
           </div>
         </div>
@@ -234,7 +245,8 @@
         <div class="contact-details">
           <p><span class="icon-phone">&#9742;</span> <strong>Телефон:</strong> <a href="tel:+79997854929">+7 (999) 785 4929</a></p>
           <p><span class="icon-mail">&#9993;</span> <strong>Email:</strong> <a href="mailto:eco@recycle.ru">eco@recycle.ru</a></p>
-          <p><span class="icon-address">&#128205;</span> <strong>Адрес:</strong> Аграрная улица, 1, посёлок городского типа Стройкерамика, городское поселение Смышляевка, Волжский район, Самарская область</p>
+          <p><span class="icon-address">&#128205;</span> <strong>Адрес:</strong> Аграрная улица, 1, посёлок городского типа
+            Стройкерамика, городское поселение Смышляевка, Волжский район, Самарская область</p>
           <div id="yandex-map" class="yandex-map-container"></div>
           <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=ВАШ_API_КЛЮЧ_ЯНДЕКС_КАРТ"></script>
         </div>
