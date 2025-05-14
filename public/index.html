@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcoShyna</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="logoo.png" type="image/png">
+</head>
+<body>
+  <div class="animated-bg"></div>
+
+  <aside id="sideNav" class="sidenav">
+    <a href="javascript:void(0)" class="close-nav-btn" onclick="closeSideNav()" aria-label="Закрыть меню">&times;</a>
+    <h3 class="sidenav-title">Навигация</h3>
+    <a href="index.html">Главная</a>
+    <a href="about.html">О компании</a>
+    <a href="documents.html">Документы и льготы</a>
+    <a href="index.html#process" onclick="closeSideNav(); scrollToSection('process', true)">Процесс</a>
+    <a href="index.html#calculator" onclick="closeSideNav(); scrollToSection('calculator', true)">Калькулятор</a>
+    <a href="index.html#products" onclick="closeSideNav(); scrollToSection('products', true)">Что мы производим</a>
+    <a href="index.html#request-form" onclick="closeSideNav(); scrollToSection('request-form', true)">Заявка</a>
+    <a href="index.html#reviews" onclick="closeSideNav(); scrollToSection('reviews', true)">Отзывы</a>
+    <a href="index.html#contacts" onclick="closeSideNav(); scrollToSection('contacts', true)">Контакты</a>
+    <hr>
+    <div id="auth-links-sidenav">
+      <button class="nav-btn login-btn" onclick="openLogin(); closeSideNav();">Вход</button>
+      <button class="nav-btn register-btn" onclick="openRegister(); closeSideNav();">Регистрация</button>
+    </div>
+    <div id="profile-sidenav" class="profile-sidenav" style="display:none;">
+      <div class="profile-picture-container-sidenav">
+        <img id="profileImageSidenav" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Профиль" class="profile-image-round-sidenav">
+      </div>
+      <span id="profileNameSidenav"></span>
+      <button class="nav-btn" onclick="openProfileSettings(); closeSideNav();">Настройки</button>
+      <button class="nav-btn logout-btn" onclick="logout(); closeSideNav();">Выйти</button>
+    </div>
+    <a href="admin.html" style="display: block; padding: 10px; color: white; text-decoration: none;">Панель администратора</a>
+  </aside>
+
+  <div id="main-content">
+    <header>
+      <div class="header-left-content">
+        <button class="open-nav-btn" onclick="openSideNav()" aria-label="Открыть меню">&#9776; Меню</button>
+        <a href="index.html" class="logo-link">
+          <img src="logoo.png" alt="EcoShyna Logo" class="header-logo">
+        </a>
+      </div>
+      <div class="header-right-content">
+        <div class="header-contacts">
+          <p><span class="icon-phone">&#9742;</span> <a href="tel:+79997854929">+7 (999) 785 4929</a></p>
+          <p><span class="icon-mail">&#9993;</span> <a href="mailto:eco@recycle.ru">eco@recycle.ru</a></p>
+          <p><span class="icon-address">&#128205;</span> Адрес: Аграрная улица, 1, пгт. Стройкерамика, Самарская обл.</p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <h1>Экологичный ресайклинг шин в вашем городе</h1>
+          <p>Мы превращаем старые шины в ценные материалы, заботясь об окружающей среде и предлагая вам выгодные условия.</p>
+          <div class="hero-buttons">
+            <button class="btn-main hero-btn" onclick="scrollToSection('calculator')">Рассчитать выгоду</button>
+            <button class="btn-secondary hero-btn" onclick="scrollToSection('request-form')">Оставить заявку на вывоз</button>
+          </div>
+        </div>
+        <div class="hero-image">
+          <img src="retyre.jpg" alt="Переработанные шины">
+          <img src="logoo.png" alt="EcoShyna Overlay Logo" class="hero-overlay-logo">
+        </div>
+      </section>
+
+      <section id="about" class="info-section interactive-section">
+        <h2>О нашей компании</h2>
+        <p>EcoShyna - команда профессионалов, объединённых целью сделать наш мир чище. Мы используем передовые технологии для переработки изношенных шин, минимизируя вредное воздействие на окружающую среду. Наша миссия - не просто утилизировать отходы, а создавать из них новые, полезные продукты.</p>
+        <ul>
+          <li>Современное оборудование и технологии.</li>
+          <li>Строгий контроль качества на каждом этапе.</li>
+          <li>Индивидуальный подход к каждому клиенту.</li>
+          <li>Вклад в устойчивое развитие региона.</li>
+        </ul>
+        <div class="section-logo-bg">
+          <img src="logoo.png" alt="EcoShyna">
+        </div>
+      </section>
+
+      <section id="process" class="info-section interactive-section">
+        <h2>Как происходит процесс ресайклинга?</h2>
+        <div class="process-steps">
+          <div class="step interactive-item">
+            <div class="step-icon">1</div>
+            <h3>Сбор и транспортировка</h3>
+            <p>Мы принимаем шины от частных лиц и организаций, обеспечивая удобный и безопасный вывоз.</p>
+          </div>
+          <div class="step interactive-item">
+            <div class="step-icon">2</div>
+            <h3>Измельчение</h3>
+            <p>Шины проходят этап дробления на мелкие фракции для дальнейшей переработки.</p>
+          </div>
+          <div class="step interactive-item">
+            <div class="step-icon">3</div>
+            <h3>Разделение материалов</h3>
+            <p>С помощью специального оборудования резиновая крошка отделяется от металлокорда и текстиля.</p>
+          </div>
+          <div class="step interactive-item">
+            <div class="step-icon">4</div>
+            <h3>Производство</h3>
+            <p>Полученные материалы используются для изготовления широкого спектра продукции.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="calculator" class="info-section interactive-section">
+        <h2>Калькулятор переработки шин</h2>
+        <p>Введите вес шин, которые вы хотите сдать, и узнайте, сколько вы получите и что можно из них произвести.</p>
+        <form id="calc-form" onsubmit="return calcTyres(event)">
+          <div class="form-group">
+            <label for="tyre-weight">Вес шин (кг)</label>
+            <input type="number" id="tyre-weight" min="1" placeholder="Например, 100" required aria-describedby="tyre-weight-error">
+            <div id="tyre-weight-error" class="error-message" style="display:none;"></div>
+          </div>
+          <button class="btn-main" type="submit">Рассчитать</button>
+        </form>
+        <div id="calc-result" class="calc-result" style="display: none;"></div>
+      </section>
+
+      <section id="products" class="info-section interactive-section">
+        <h2>Что можно изготовить из переработанных шин?</h2>
+        <div class="products-grid">
+          <div class="product-item interactive-item">
+            <img src="replit.jpg" alt="Резиновая плитка">
+            <h3>Резиновая плитка</h3>
+            <p>Идеальное покрытие для детских и спортивных площадок, садовых дорожек.</p>
+          </div>
+          <div class="product-item interactive-item">
+            <img src="replosh.jpg" alt="Спортивные площадки">
+            <h3>Покрытия для спортплощадок</h3>
+            <p>Безопасные и долговечные покрытия для стадионов и спортзалов.</p>
+          </div>
+          <div class="product-item interactive-item">
+            <img src="redor.jpg" alt="Дорожное покрытие">
+            <h3>Компоненты для дорожного покрытия</h3>
+            <p>Использование резиновой крошки улучшает качество и долговечность дорог.</p>
+          </div>
+        </div>
+        <p class="highlight-text">Удивительно, сколько полезных вещей можно создать из отходов!</p>
+        <div class="section-logo-bg">
+          <img src="logoo.png" alt="EcoShyna">
+        </div>
+      </section>
+
+      <section id="request-form" class="info-section interactive-section">
+        <h2>Оформить заявку на вывоз шин</h2>
+        <p>Заполните форму, и мы свяжемся с вами для уточнения деталей.</p>
+        <form id="request-form-data" onsubmit="return sendRequest(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="req-name">Ваше ФИО</label>
+              <input type="text" id="req-name" name="name" required aria-describedby="req-name-error">
+              <div id="req-name-error" class="error-message" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+              <label for="req-phone">Телефон</label>
+              <input type="tel" id="req-phone" name="phone" required pattern="\+?[0-9\s\-\(\)]+" aria-describedby="req-phone-error">
+              <div id="req-phone-error" class="error-message" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+              <label for="req-email">Email (необязательно)</label>
+              <input type="email" id="req-email" name="email" aria-describedby="req-email-error">
+              <div id="req-email-error" class="error-message" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+              <label for="req-city">Город</label>
+              <input type="text" id="req-city" name="city" required aria-describedby="req-city-error">
+              <div id="req-city-error" class="error-message" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+              <label for="req-street">Улица</label>
+              <input type="text" id="req-street" name="street" required aria-describedby="req-street-error">
+              <div id="req-street-error" class="error-message" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+              <label for="req-house">Номер дома</label>
+              <input type="text" id="req-house" name="house" required aria-describedby="req-house-error">
+              <div id="req-house-error" class="error-message" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+              <label for="req-weight">Примерный вес шин (кг)</label>
+              <input type="number" id="req-weight" name="weight" min="1" required aria-describedby="req-weight-error">
+              <div id="req-weight-error" class="error-message" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+              <label for="req-date">Желаемая дата вывоза</label>
+              <input type="date" id="req-date" name="date" required aria-describedby="req-date-error">
+              <div id="req-date-error" class="error-message" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+              <label for="req-time">Желаемое время вывоза</label>
+              <input type="time" id="req-time" name="time" required aria-describedby="req-time-error">
+              <div id="req-time-error" class="error-message" style="display:none;"></div>
+            </div>
+            <input type="hidden" id="req-submittedAt" name="submittedAt">
+          </div>
+          <button class="btn-main" type="submit" style="margin-top:1em;">Отправить заявку</button>
+        </form>
+        <div id="request-result" class="request-result" style="display:none;"></div>
+      </section>
+
+      <section id="reviews" class="info-section interactive-section">
+        <h2>Отзывы наших клиентов</h2>
+        <div class="reviews-list">
+          <div class="review-item interactive-item">
+            <p>"Отличный сервис! Ребята быстро вывезли шины🚚💨, и я получил за это деньги. Рекомендую!"</p>
+            <span class="reviewer">- Санат, частный клиент</span>
+          </div>
+          <div class="review-item interactive-item">
+            <p>"Удобный график вывоза и прозрачные условия👍. Рассматриваем на дальнейшее сотрудничество"</p>
+            <span class="reviewer">- ООО "АвтоПлюс"</span>
+          </div>
+          <div class="review-item interactive-item">
+            <p>"В гараже скопилось немало шин за долгое время, решил отвезти всё на переработку в ЭкоШину, никогда ещё уборка не приносила удовольствия и денег😅"</p>
+            <span class="reviewer">- Константин, частный клиент</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="contacts" class="info-section interactive-section">
+        <h2>Контакты</h2>
+        <p>Свяжитесь с нами, чтобы узнать больше о наших услугах или оставить заявку.</p>
+        <div class="contact-details">
+          <p><span class="icon-phone">&#9742;</span> <strong>Телефон:</strong> <a href="tel:+79997854929">+7 (999) 785 4929</a></p>
+          <p><span class="icon-mail">&#9993;</span> <strong>Email:</strong> <a href="mailto:eco@recycle.ru">eco@recycle.ru</a></p>
+          <p><span class="icon-address">&#128205;</span> <strong>Адрес:</strong> Аграрная улица, 1, посёлок городского типа Стройкерамика, городское поселение Смышляевка, Волжский район, Самарская область</p>
+          <div id="yandex-map" class="yandex-map-container"></div>
+          <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=ВАШ_API_КЛЮЧ_ЯНДЕКС_КАРТ"></script>
+        </div>
+        <div class="stats-container">
+          <h2>Интерактивная статистика</h2>
+          <div>
+            <span id="stat-tyres" class="stat-number">0</span> кг шин переработано через наш портал!
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="logoo.png" alt="EcoShyna">
+          <p>EcoShyna</p>
+        </div>
+        <div class="footer-contacts">
+          <h3>Свяжитесь с нами:</h3>
+          <p><span class="icon-phone">&#9742;</span> Телефон: <a href="tel:+79997854929">+7 (999) 785 4929</a></p>
+          <p><span class="icon-mail">&#9993;</span> Email: <a href="mailto:eco@recycle.ru">eco@recycle.ru</a></p>
+          <p><span class="icon-address">&#128205;</span> Адрес: Аграрная улица, 1, пгт. Стройкерамика, Самарская обл.</p>
+        </div>
+        <div class="footer-info">
+          <p>&copy; <span id="currentYear"></span> EcoShyna. Все права защищены.</p>
+          <p>Переработка шин с заботой о будущем.</p>
+          <p>Разработано с ❤️ для чистой планеты!</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <div id="modal-bg" class="modal-bg"></div>
+  <div id="modal-content-wrapper" class="modal-content-wrapper"></div>
+
+  <button id="scrollTopBtn" title="Наверх" onclick="scrollToTop()" aria-label="Прокрутить наверх">&#8679;</button>
+
+  <script src="script.js"></script>
+</body>
+</html>

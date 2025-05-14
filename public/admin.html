@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Админка - Заявки</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+    }
+    h1, h2 {
+      color: #004080;
+    }
+    .hidden {
+      display: none;
+    }
+    #requests-container {
+      white-space: pre-wrap;
+      font-family: monospace;
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 1rem;
+      border-radius: 4px;
+    }
+    .error {
+      color: #c00;
+      margin-top: 1rem;
+      font-size: 0.9em;
+    }
+    .admin-menu {
+      margin-bottom: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+    .admin-menu button {
+      padding: 0.5em 1.2em;
+      border-radius: 6px;
+      border: none;
+      background: #004080;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: background 0.2s;
+    }
+    .admin-menu button:hover {
+      background: #0055a6;
+    }
+    .admin-menu button.active {
+      background: #0077cc;
+    }
+    .admin-menu button.logout-btn {
+      background: #c00;
+    }
+    .admin-menu button.logout-btn:hover {
+      background: #a00;
+    }
+    .admin-menu .date-filter {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .admin-menu .date-filter label {
+      font-size: 0.9em;
+      color: #333;
+    }
+    .admin-menu .date-filter input[type="date"] {
+      padding: 0.5em;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 0.9em;
+    }
+    .login-form label {
+      display: block;
+      margin-bottom: 0.3em;
+      font-weight: bold;
+      color: #333;
+    }
+    .login-form input {
+      width: 100%;
+      padding: 0.5em;
+      margin-bottom: 1em;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    .login-form button {
+      width: 100%;
+      padding: 0.7em;
+      border-radius: 6px;
+      border: none;
+      background: #004080;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .login-form button:hover {
+      background: #0055a6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="login-section">
+      <h1>Вход для администратора</h1>
+      <form class="login-form" onsubmit="return adminLogin(event)">
+        <label for="login">Логин</label>
+        <input type="text" id="login" required autocomplete="username" aria-describedby="login-error">
+        <label for="password">Пароль</label>
+        <input type="password" id="password" required autocomplete="current-password" aria-describedby="login-error">
+        <button type="submit">Войти</button>
+      </form>
+      <div id="login-error" class="error" style="display: none;"></div>
+    </div>
+
+    <div id="admin-section" class="hidden">
+      <div class="admin-menu">
+        <span style="font-weight: bold; color: #004080;">Панель администратора</span>
+        <button id="btn-all" class="active" onclick="filterRequests('all')" aria-label="Показать все заявки">Все заявки</button>
+        <button id="btn-today" onclick="filterRequests('today')" aria-label="Показать заявки за сегодня">Сегодня</button>
+        <button id="btn-yesterday" onclick="filterRequests('yesterday')" aria-label="Показать заявки за вчера">Вчера</button>
+        <button id="btn-future" onclick="filterRequests('future')" aria-label="Показать заявки на будущие дни">Будущие дни</button>
+        <div class="date-filter">
+          <label for="date-picker">Выбрать дату:</label>
+          <input type="date" id="date-picker" onchange="filterRequests('specific')" aria-label="Выбрать конкретную дату для фильтрации заявок">
+        </div>
+        <button onclick="loadRequests()" aria-label="Обновить список заявок">Обновить</button>
+        <button class="logout-btn" onclick="adminLogout()" aria-label="Выйти из панели администратора">Выйти</button>
+      </div>
+      <div id="requests-block">
+        <h2>Заявки на вывоз</h2>
+        <div id="requests-container">Загрузка заявок...</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function adminLogin(event) {
+      event.preventDefault();
+      const login = document.getElementById('login').value.trim();
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('login-error');
+      errorDiv.style.display = 'none';
+      errorDiv.textContent = '';
+
+      fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login, password })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Неверный логин или пароль');
+        return res.json();
+      })
+      .then(data => {
+        if (data.success) {
+          localStorage.setItem('isAdmin', '1');
+          document.getElementById('login-section').classList.add('hidden');
+          document.getElementById('admin-section').classList.remove('hidden');
+          loadRequests();
+        } else {
+          errorDiv.textContent = data.message || 'Ошибка входа';
+          errorDiv.style.display = 'block';
+        }
+      })
+      .catch(err => {
+        errorDiv.textContent = 'Ошибка входа: ' + err.message;
+        errorDiv.style.display = 'block';
+      });
+      return false;
+    }
+
+    function adminLogout() {
+      localStorage.removeItem('isAdmin');
+      document.getElementById('admin-section').classList.add('hidden');
+      document.getElementById('login-section').classList.remove('hidden');
+      document.getElementById('requests-container').textContent = 'Загрузка заявок...';
+    }
+
+    function loadRequests() {
+      const container = document.getElementById('requests-container');
+      container.textContent = 'Загрузка заявок...';
+      fetch('/api/admin/requests')
+        .then(res => {
+          if (!res.ok) throw new Error('Ошибка загрузки заявок');
+          return res.text();
+        })
+        .then(data => {
+          container.textContent = data.trim() || 'Заявок пока нет.';
+          filterRequests('all'); // Apply default filter
+        })
+        .catch(err => {
+          container.textContent = 'Не удалось загрузить заявки.';
+          console.error(err);
+        });
+    }
+
+    function filterRequests(filterType) {
+      const container = document.getElementById('requests-container');
+      const buttons = document.querySelectorAll('.admin-menu button:not(.logout-btn):not([onclick="loadRequests()"])');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-${filterType}`).classList.add('active');
+
+      let requests = container.textContent.split('\n--------------------\n').filter(r => r.trim());
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      const samaraOffset = 4 * 60; // Samara is UTC+4
+
+      if (filterType === 'specific') {
+        const datePicker = document.getElementById('date-picker').value;
+        if (!datePicker) {
+          container.textContent = 'Пожалуйста, выберите дату.';
+          return;
+        }
+        const selectedDate = new Date(datePicker);
+        selectedDate.setHours(0, 0, 0, 0);
+        requests = requests.filter(request => {
+          const submittedAtMatch = request.match(/Подача: (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/);
+          if (submittedAtMatch) {
+            const submittedDate = new Date(submittedAtMatch[1]);
+            submittedDate.setHours(0, 0, 0, 0);
+            return submittedDate.getTime() === selectedDate.getTime();
+          }
+          return false;
+        });
+      } else if (filterType === 'today') {
+        requests = requests.filter(request => {
+          const submittedAtMatch = request.match(/Подача: (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/);
+          if (submittedAtMatch) {
+            const submittedDate = new Date(submittedAtMatch[1]);
+            submittedDate.setHours(0, 0, 0, 0);
+            return submittedDate.getTime() === today.getTime();
+          }
+          return false;
+        });
+      } else if (filterType === 'yesterday') {
+        requests = requests.filter(request => {
+          const submittedAtMatch = request.match(/Подача: (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/);
+          if (submittedAtMatch) {
+            const submittedDate = new Date(submittedAtMatch[1]);
+            submittedDate.setHours(0, 0, 0, 0);
+            return submittedDate.getTime() === yesterday.getTime();
+          }
+          return false;
+        });
+      } else if (filterType === 'future') {
+        requests = requests.filter(request => {
+          const submittedAtMatch = request.match(/Подача: (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/);
+          if (submittedAtMatch) {
+            const submittedDate = new Date(submittedAtMatch[1]);
+            submittedDate.setHours(0, 0, 0, 0);
+            return submittedDate.getTime() > today.getTime();
+          }
+          return false;
+        });
+      }
+
+      container.textContent = requests.length > 0 ? requests.join('\n--------------------\n') : 'Нет заявок за выбранный период.';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('isAdmin') === '1') {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('admin-section').classList.remove('hidden');
+        loadRequests();
+      }
+    });
+  </script>
+</body>
+</html>

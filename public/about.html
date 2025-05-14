@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>О компании - EcoShyna</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="logoo.png" type="image/png">
+</head>
+<body class="standalone-page">
+  <div class="animated-bg"></div>
+
+  <aside id="sideNav" class="sidenav">
+    <a href="javascript:void(0)" class="close-nav-btn" onclick="closeSideNav()">&times;</a>
+    <h3 class="sidenav-title">Навигация</h3>
+    <a href="index.html">Главная</a>
+    <a href="about.html" class="active">О компании</a>
+    <a href="documents.html">Документы и льготы</a>
+    <a href="index.html#process" onclick="closeSideNav(); scrollToSection('process', true)">Процесс</a>
+    <a href="index.html#calculator" onclick="closeSideNav(); scrollToSection('calculator', true)">Калькулятор</a>
+    <a href="index.html#products" onclick="closeSideNav(); scrollToSection('products', true)">Что мы производим</a>
+    <a href="index.html#request-form" onclick="closeSideNav(); scrollToSection('request-form', true)">Заявка</a>
+    <a href="index.html#reviews" onclick="closeSideNav(); scrollToSection('reviews', true)">Отзывы</a>
+    <a href="index.html#contacts" onclick="closeSideNav(); scrollToSection('contacts', true)">Контакты</a>
+    <hr>
+    <div id="auth-links-sidenav">
+        <button class="nav-btn login-btn" onclick="openLogin(); closeSideNav();">Вход</button>
+        <button class="nav-btn register-btn" onclick="openRegister(); closeSideNav();">Регистрация</button>
+    </div>
+    <div id="profile-sidenav" class="profile-sidenav" style="display:none;">
+        <div class="profile-picture-container-sidenav">
+            <img id="profileImageSidenav" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Профиль" class="profile-image-round-sidenav">
+        </div>
+        <span id="profileNameSidenav"></span>
+        <button class="nav-btn" onclick="openProfileSettings(); closeSideNav();">Настройки</button>
+        <button class="nav-btn logout-btn" onclick="logout(); closeSideNav();">Выйти</button>
+    </div>
+  </aside>
+
+  <div id="main-content">
+    <header>
+        <div class="header-left">
+          <button class="open-nav-btn" onclick="openSideNav()">&#9776; Меню</button>
+          <div class="header-contacts">
+              <p><span class="icon-phone">&#9742;</span> <a href="tel:+79997854929">+7 (999) 785 4929</a></p>
+              <p><span class="icon-mail">&#9993;</span> <a href="mailto:info@ecoshina.ru">info@ecoshina.ru</a></p>
+          </div>
+        </div>
+        <a href="index.html" class="logo-link">
+          <img src="logoo.png" alt="EcoShyna Logo" class="header-logo">
+        </a>
+    </header>
+
+    <main>
+      <section class="page-header">
+          <h1>О компании EcoShyna</h1>
+      </section>
+      <section class="content-section interactive-section">
+        <h2>Наша История и Миссия</h2>
+        <p>
+          Наша компания была основана в 2025 году в посёлке Стройкерамика, Самарская область. Идея создания предприятия возникла на фоне мирового тренда на переработку шин и покрышек, который начал активно развиваться в начале 2020-х годов. В Европе одним из пионеров отрасли является датская компания <a href="https://www.genan.us/about/the-genan-story/" target="_blank" rel="noopener noreferrer">Genan</a>, которая с 1990 года успешно перерабатывает более 70 тысяч тонн шин ежегодно, внедряя инновационные технологии и устойчивые подходы.
+        </p>
+        <p>
+          В Самарском городском совете долгое время ощущалась нехватка предприятий, способных качественно перерабатывать автомобильные шины и покрышки. Особенно остро стоял вопрос обслуживания физических и юридических лиц, желающих избавиться от старых шин экологично и с выгодой. EcoShyna стала ответом на этот вызов, предлагая современный комплекс услуг по сбору, переработке и утилизации шин с применением передовых технологий.
+        </p>
+        <div class="content-image interactive-item">
+          <img src="retyre.jpg" alt="Производство EcoShyna" />
+          <img src="logoo.png" alt="EcoShyna Overlay Logo" class="hero-overlay-logo" style="width:100px; opacity:0.8; bottom:20px; right:20px;">
+        </div>
+        <h2>Наш вклад и принципы</h2>
+        <p>
+          Мы гордимся тем, что в основе нашей работы лежит не только забота об экологии, но и создание новых рабочих мест, поддержка местного бизнеса и формирование устойчивой экономики региона. Наши технологии позволяют получать качественные материалы для производства резиновой плитки, покрытий для спортивных площадок и компонентов для дорожного строительства.
+        </p>
+        <p>
+          Знайте, что деятельность EcoShyna полностью соответствует требованиям российского законодательства, включая Федеральный закон № 89-ФЗ «Об отходах производства и потребления» и Федеральный закон № 152-ФЗ «О персональных данных». Мы также помогаем нашим клиентам получать необходимые документы, включая освобождение от платы за негативное воздействие на окружающую среду (НВОС), что делает сотрудничество с нами ещё более выгодным.
+        </p>
+        <p>
+          <strong>Наши планы на будущее:</strong> расширение производственных мощностей, внедрение новых технологий переработки и повышение экологической ответственности среди населения и бизнеса Самарской области.
+        </p>
+        <div class="section-logo-bg">
+            <img src="logoo.png" alt="EcoShyna">
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-logo">
+            <img src="logoo.png" alt="EcoShyna">
+            <p>EcoShyna</p>
+        </div>
+        <div class="footer-contacts">
+            <h3>Свяжитесь с нами:</h3>
+            <p><span class="icon-phone">&#9742;</span> Телефон: <a href="tel:+79997854929">+7 (999) 785 4929</a></p>
+            <p><span class="icon-mail">&#9993;</span> Email: <a href="mailto:info@ecoshina.ru">info@ecoshina.ru</a></p>
+            <p><span class="icon-address">&#128205;</span> Адрес: Аграрная улица, 1, пгт. Стройкерамика, Самарская обл.</p>
+        </div>
+        <div class="footer-info">
+            <p>&copy; <span id="currentYear">2025</span> EcoShyna. Все права защищены.</p>
+            <p>Переработка шин с заботой о будущем.</p>
+            <p>Разработано с ❤️ для чистой планеты!</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <div id="modal-bg" class="modal-bg"></div>
+  <div id="modal-content-wrapper" class="modal-content-wrapper"></div>
+  
+  <button id="scrollTopBtn" title="Наверх" onclick="scrollToTop()">&#8679;</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
