@@ -1,171 +1,336 @@
 const express = require('express');
-   const fs = require('fs').promises;
-   const path = require('path');
-   const { body, validationResult } = require('express-validator');
-   const rateLimit = require('express-rate-limit');
-   const sanitizeHtml = require('sanitize-html');
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const bcrypt = require('bcryptjs');
+const { body, validationResult } = require('express-validator');
 
-   const app = express();
-   const port = process.env.PORT || 8000;
+const app = express();
+const port = 8000;
 
-   // Middleware
-   app.use(express.urlencoded({ extended: true }));
-   app.use(express.json());
-   app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public' directory
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-   // Rate limiting for API endpoints
-   const apiLimiter = rateLimit({
-       windowMs: 15 * 60 * 1000, // 15 minutes
-       max: 100, // Limit each IP to 100 requests per windowMs
-       message: 'Слишком много запросов с вашего IP, попробуйте снова через 15 минут.'
-   });
-   app.use('/api/', apiLimiter);
+// База данных SQLite
+const db = new sqlite3.Database(path.join(__dirname, 'ecoshyna.sqlite'));
 
-   // Admin credentials (in a real app, use a database and hash passwords)
-   const adminCredentials = {
-       login: 'admin',
-       password: 'artur9090' // Replace with a strong password or use environment variables
-   };
+// Инициализация таблиц
+db.serialize(() => {
+  // Пользователи
+  db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role TEXT DEFAULT 'user',
+    avatar TEXT,
+    company_name TEXT,
+    inn TEXT,
+    ogrn TEXT,
+    address_jur TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
 
-   // Validation middleware for request form
-   const requestValidation = [
-       body('name').trim().notEmpty().withMessage('ФИО обязательно для заполнения'),
-       body('phone').trim().matches(/\+?[0-9\s\-\(\)]+/).withMessage('Некорректный номер телефона'),
-       body('email').optional().isEmail().withMessage('Некорректный email'),
-       body('city').trim().notEmpty().withMessage('Город обязателен для заполнения'),
-       body('street').trim().notEmpty().withMessage('Улица обязательна для заполнения'),
-       body('house').trim().notEmpty().withMessage('Номер дома обязателен для заполнения'),
-       body('weight').isFloat({ min: 1 }).withMessage('Вес должен быть больше 0 кг'),
-       body('date').isISO8601().withMessage('Некорректный формат даты'),
-       body('time').matches(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/).withMessage('Некорректный формат времени'),
-       body('submittedAt').isISO8601().withMessage('Некорректный формат времени подачи заявки'),
-       body('date', 'Дата и время должны быть не ранее чем через 3 часа от текущего времени и не позже 19:00').custom((date, { req }) => {
-           const selectedDateTime = new Date(`${date}T${req.body.time}:00+04:00`); // Samara time (UTC+4)
-           const now = new Date();
-           now.setHours(now.getHours() + 4); // Adjust to Samara time
-           const minDateTime = new Date(now.getTime() + 3 * 60 * 60 * 1000); // 3-hour buffer
-           const maxTime = new Date(`${date}T19:00:00+04:00`);
+  // Заявки
+  db.run(`CREATE TABLE IF NOT EXISTS requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT,
+    city TEXT NOT NULL,
+    street TEXT NOT NULL,
+    house TEXT NOT NULL,
+    weight REAL NOT NULL,
+    date TEXT NOT NULL,
+    time TEXT NOT NULL,
+    address TEXT,
+    status TEXT DEFAULT 'pending',
+    submittedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
 
-           if (selectedDateTime < minDateTime) {
-               throw new Error('Дата и время должны быть не ранее чем через 3 часа от текущего времени');
-           }
-           if (selectedDateTime > maxTime) {
-               throw new Error('Время вывоза не может быть позже 19:00');
-           }
-           return true;
-       })
-   ];
+  // Сообщения чата
+  db.run(`CREATE TABLE IF NOT EXISTS chat_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    user_name TEXT,
+    text TEXT NOT NULL,
+    is_operator BOOLEAN DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
 
-   // Sanitize input function
-   function sanitizeInput(input) {
-       return sanitizeHtml(input, {
-           allowedTags: [],
-           allowedAttributes: {}
-       });
-   }
+  // Документы NVOS (простая таблица для сгенерированных документов)
+  db.run(`CREATE TABLE IF NOT EXISTS documents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    doc_type TEXT,
+    content TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
 
-   // API Endpoints
-   app.post('/api/request', requestValidation, async (req, res) => {
-       try {
-           const errors = validationResult(req);
-           if (!errors.isEmpty()) {
-               return res.status(400).json({ errors: errors.array() });
-           }
+  // Создание/обновление администратора
+  const adminUser = 'admin';
+  const adminPass = 'artur9090';
+  bcrypt.hash(adminPass, 10, (err, hash) => {
+    if (err) return console.error('Ошибка хеширования пароля админа', err);
+    db.get("SELECT * FROM users WHERE username = ?", [adminUser], (err, row) => {
+      if (err) return console.error(err);
+      if (!row) {
+        db.run("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
+          [adminUser, 'admin@ecoshyna.ru', hash, 'admin']);
+        console.log('✅ Администратор создан: admin / artur9090');
+      } else {
+        db.run("UPDATE users SET password = ?, role = 'admin' WHERE username = ?", [hash, adminUser]);
+        console.log('✅ Пароль администратора обновлён');
+      }
+    });
+  });
+});
 
-           const { name, phone, email, city, street, house, weight, date, time, submittedAt } = req.body;
+// ==================== АВТОРИЗАЦИЯ ====================
+app.post('/api/auth/login', (req, res) => {
+  const { login, password } = req.body;
+  db.get("SELECT * FROM users WHERE username = ? OR email = ?", [login, login], async (err, user) => {
+    if (err || !user) {
+      return res.status(401).json({ success: false, message: 'Пользователь не найден' });
+    }
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({ success: false, message: 'Неверный пароль' });
+    }
+    const { password: _, ...userData } = user;
+    res.json({ success: true, user: userData });
+  });
+});
 
-           // Sanitize inputs
-           const sanitizedData = {
-               name: sanitizeInput(name),
-               phone: sanitizeInput(phone),
-               email: email ? sanitizeInput(email) : '',
-               city: sanitizeInput(city),
-               street: sanitizeInput(street),
-               house: sanitizeInput(house),
-               weight: parseFloat(weight).toFixed(1),
-               date: sanitizeInput(date),
-               time: sanitizeInput(time),
-               submittedAt: new Date(submittedAt).toISOString()
-           };
+app.post('/api/auth/register', [
+  body('username').notEmpty().withMessage('Имя пользователя обязательно'),
+  body('email').isEmail().withMessage('Некорректный email'),
+  body('password').isLength({ min: 8 }).withMessage('Пароль должен быть минимум 8 символов')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, message: errors.array()[0].msg });
+  }
 
-           // Format request data
-           const requestData = `
-   Имя: ${sanitizedData.name}
-   Телефон: ${sanitizedData.phone}
-   Email: ${sanitizedData.email || 'Не указан'}
-   Адрес: ${sanitizedData.city}, ${sanitizedData.street}, ${sanitizedData.house}
-   Вес шин: ${sanitizedData.weight} кг
-   Дата вывоза: ${sanitizedData.date}
-   Время вывоза: ${sanitizedData.time}
-   Подача: ${sanitizedData.submittedAt}
-   --------------------`;
+  const { username, email, password, role, company_name, inn, ogrn, address_jur } = req.body;
+  const hashedPass = await bcrypt.hash(password, 10);
 
-           // Append to file
-           await fs.appendFile(path.join(__dirname, 'requests.txt'), requestData + '\n');
+  db.run(`INSERT INTO users (username, email, password, role, company_name, inn, ogrn, address_jur)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [username, email, hashedPass, role || 'user', company_name, inn, ogrn, address_jur],
+    function(err) {
+      if (err) {
+        if (err.message.includes('UNIQUE')) {
+          return res.status(400).json({ success: false, message: 'Пользователь с таким именем или email уже существует' });
+        }
+        return res.status(500).json({ success: false, message: 'Ошибка регистрации' });
+      }
+      res.json({ success: true, message: 'Регистрация успешна' });
+    });
+});
 
-           res.send('Заявка успешно отправлена! Мы свяжемся с вами для подтверждения.');
-       } catch (error) {
-           console.error('Ошибка при обработке заявки:', error);
-           res.status(500).send('Произошла ошибка при отправке заявки.');
-       }
-   });
+app.post('/api/auth/update', async (req, res) => {
+  const { userId, username, email, password } = req.body;
+  if (!userId) return res.status(400).json({ success: false, message: 'ID пользователя не указан' });
 
-   app.post('/api/admin/login', [
-       body('login').trim().notEmpty().withMessage('Логин обязателен'),
-       body('password').notEmpty().withMessage('Пароль обязателен')
-   ], async (req, res) => {
-       try {
-           const errors = validationResult(req);
-           if (!errors.isEmpty()) {
-               return res.status(400).json({ success: false, message: errors.array()[0].msg });
-           }
+  const updates = [];
+  const params = [];
+  if (username) { updates.push('username = ?'); params.push(username); }
+  if (email) { updates.push('email = ?'); params.push(email); }
+  if (password) {
+    const hashed = await bcrypt.hash(password, 10);
+    updates.push('password = ?');
+    params.push(hashed);
+  }
+  if (updates.length === 0) {
+    return res.status(400).json({ success: false, message: 'Нет данных для обновления' });
+  }
+  params.push(userId);
+  db.run(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params, function(err) {
+    if (err) {
+      if (err.message.includes('UNIQUE')) {
+        return res.status(400).json({ success: false, message: 'Имя пользователя или email уже заняты' });
+      }
+      return res.status(500).json({ success: false, message: 'Ошибка обновления' });
+    }
+    db.get("SELECT id, username, email, role, avatar FROM users WHERE id = ?", [userId], (err, user) => {
+      if (err) return res.status(500).json({ success: false });
+      res.json({ success: true, user });
+    });
+  });
+});
 
-           const { login, password } = req.body;
+// ==================== ЗАЯВКИ ====================
+app.post('/api/request', [
+  body('name').notEmpty(),
+  body('phone').notEmpty(),
+  body('city').notEmpty(),
+  body('street').notEmpty(),
+  body('house').notEmpty(),
+  body('weight').isFloat({ min: 1 }),
+  body('date').notEmpty(),
+  body('time').notEmpty()
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ message: errors.array()[0].msg });
+  }
 
-           if (login === adminCredentials.login && password === adminCredentials.password) {
-               return res.json({ success: true });
-           } else {
-               return res.status(401).json({ success: false, message: 'Неверный логин или пароль' });
-           }
-       } catch (error) {
-           console.error('Ошибка при авторизации:', error);
-           res.status(500).json({ success: false, message: 'Произошла ошибка сервера' });
-       }
-   });
+  const { name, phone, email, city, street, house, weight, date, time, userId, submittedAt } = req.body;
+  const address = `${city}, ул. ${street}, д. ${house}`;
+  const submissionTime = submittedAt || new Date().toISOString();
 
-   app.get('/api/admin/requests', async (req, res) => {
-       try {
-           const data = await fs.readFile(path.join(__dirname, 'requests.txt'), 'utf8');
-           res.send(data);
-       } catch (error) {
-           if (error.code === 'ENOENT') {
-               res.send('Заявок пока нет.');
-           } else {
-               console.error('Ошибка при чтении заявок:', error);
-               res.status(500).send('Произошла ошибка при загрузке заявок.');
-           }
-       }
-   });
+  db.run(`INSERT INTO requests (user_id, name, phone, email, city, street, house, weight, date, time, address, submittedAt)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [userId || null, name, phone, email, city, street, house, weight, date, time, address, submissionTime],
+    function(err) {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('Ошибка сохранения заявки');
+      }
+      res.status(201).send('Заявка успешно принята');
+    });
+});
 
-   // Serve HTML files
-   app.get('/', (req, res) => {
-       fs.readFile(path.join(__dirname, 'public', 'index.html'), 'utf8', (err, data) => {
-           if (err) {
-               console.error(err);
-               return res.status(500).send('Error reading index.html');
-           }
-           // Замените плейсхолдер на переменную окружения
-           const apiKey = process.env.YANDEX_MAPS_API_KEY || '4dbf074a-96ae-455e-a980-a20e4a3da478'; // Use your key as a default for local testing
-           const updatedHtml = data.replace('ВАШ_API_КЛЮЧ_ЯНДЕКС_КАРТ', apiKey);
-           res.send(updatedHtml);
-       });
-   });
+app.get('/api/requests', (req, res) => {
+  db.all("SELECT * FROM requests ORDER BY submittedAt DESC", (err, rows) => {
+    if (err) return res.status(500).json([]);
+    res.json(rows);
+  });
+});
 
-   app.get('/admin.html', (req, res) => {
-       res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-   });
+app.put('/api/requests/status', (req, res) => {
+  const { id, status } = req.body;
+  if (!id || !status) return res.status(400).json({ error: 'Неверные данные' });
+  db.run("UPDATE requests SET status = ? WHERE id = ?", [status, id], function(err) {
+    if (err) return res.status(500).json({ error: 'Ошибка обновления' });
+    res.json({ success: true });
+  });
+});
 
-   // Start server
-   app.listen(port, () => {
-       console.log(`Сервер запущен на http://localhost:${port}`);
-   });
+// ==================== ЧАТ ====================
+app.post('/api/chat', (req, res) => {
+  const { message, userId, userName } = req.body;
+  if (!message) return res.status(400).json({ error: 'Пустое сообщение' });
+
+  // Сохраняем сообщение пользователя
+  const userNameForDb = userName || (userId ? `user_${userId}` : 'Гость');
+  db.run(`INSERT INTO chat_messages (user_id, user_name, text, is_operator) VALUES (?, ?, ?, 0)`,
+    [userId || null, userNameForDb, message], function(err) {
+      if (err) console.error(err);
+    });
+
+  // Генерация ответа бота (ключевые слова)
+  let reply = 'Спасибо за сообщение! Наш оператор свяжется с вами в ближайшее время.';
+  const lowerMsg = message.toLowerCase();
+  if (lowerMsg.includes('цена') || lowerMsg.includes('стоимость')) {
+    reply = 'Стоимость вывоза шин рассчитывается индивидуально. Оставьте заявку, и мы свяжемся с вами для уточнения.';
+  } else if (lowerMsg.includes('вывоз') || lowerMsg.includes('приехать')) {
+    reply = 'Мы осуществляем вывоз шин от 20 кг. Оставьте заявку на сайте, и мы согласуем время.';
+  } else if (lowerMsg.includes('документ') || lowerMsg.includes('нвос')) {
+    reply = 'Для юридических лиц мы предоставляем полный пакет документов НВОС. Заполните заявку, и мы подготовим документы.';
+  } else if (lowerMsg.includes('спасибо')) {
+    reply = 'Всегда рады помочь! Обращайтесь :)';
+  }
+
+  // Сохраняем ответ бота (как операторский)
+  db.run(`INSERT INTO chat_messages (user_id, user_name, text, is_operator) VALUES (?, ?, ?, 1)`,
+    [userId || null, 'Bot', reply], (err) => {
+      if (err) console.error(err);
+    });
+
+  res.json({ reply });
+});
+
+app.get('/api/chat/messages', (req, res) => {
+  db.all("SELECT * FROM chat_messages ORDER BY created_at ASC", (err, rows) => {
+    if (err) return res.status(500).json([]);
+    res.json(rows);
+  });
+});
+
+app.post('/api/chat/operator', (req, res) => {
+  const { message, userId } = req.body;
+  if (!message) return res.status(400).json({ error: 'Пустое сообщение' });
+  db.run(`INSERT INTO chat_messages (user_id, user_name, text, is_operator) VALUES (?, ?, ?, 1)`,
+    [userId || null, 'Оператор', message], function(err) {
+      if (err) return res.status(500).json({ error: 'Ошибка' });
+      res.json({ success: true });
+    });
+});
+
+// ==================== АДМИН ЛОГИН ====================
+app.post('/api/admin/login', (req, res) => {
+  const { login, password } = req.body;
+  db.get("SELECT * FROM users WHERE (username = ? OR email = ?) AND role = 'admin'", [login, login], async (err, user) => {
+    if (err || !user) return res.status(401).json({ success: false, message: 'Доступ запрещён' });
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(401).json({ success: false, message: 'Неверный пароль' });
+    res.json({ success: true });
+  });
+});
+
+// ==================== ГЕНЕРАЦИЯ ДОКУМЕНТОВ (NVOS) ====================
+app.post('/api/documents/generate', (req, res) => {
+  const { userId, companyName, inn, ogrn, address } = req.body;
+  if (!userId) return res.status(400).json({ error: 'Необходима авторизация' });
+
+  // Имитация генерации текста нейросетью (заглушка)
+  const docContent = `
+    Документ об утверждении нормативов образования отходов и лимитов на их размещение (НВОС)
+    
+    Организация: ${companyName || 'Индивидуальный предприниматель'}
+    ИНН: ${inn || '—'}
+    ОГРН: ${ogrn || '—'}
+    Юридический адрес: ${address || '—'}
+    
+    На основании предоставленных данных и расчётов, утверждены следующие нормативы:
+    - Отходы шин: 0.5 тонн в год
+    - Резиновая крошка: 0.3 тонн в год
+    - Металлокорд: 0.05 тонн в год
+    
+    Документ сгенерирован автоматически. Для получения официального бланка обратитесь к оператору.
+  `;
+
+  db.run(`INSERT INTO documents (user_id, doc_type, content) VALUES (?, 'nvos', ?)`,
+    [userId, docContent], function(err) {
+      if (err) return res.status(500).json({ error: 'Ошибка сохранения документа' });
+      res.json({ success: true, content: docContent });
+    });
+});
+
+app.get('/api/documents/:userId', (req, res) => {
+  const { userId } = req.params;
+  db.all("SELECT * FROM documents WHERE user_id = ? ORDER BY created_at DESC", [userId], (err, rows) => {
+    if (err) return res.status(500).json([]);
+    res.json(rows);
+  });
+});
+
+// ==================== СТАТИЧЕСКИЕ ФАЙЛЫ ====================
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/about.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'about.html'));
+});
+
+app.get('/documents.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'documents.html'));
+});
+
+app.get('/admin.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+//  ЗАПУСК СЕРВЕРА
+app.listen(port, () => {
+  console.log(`🚀 Сервер EcoShyna запущен на http://localhost:${port}`);
+});
+
+// печеньки
