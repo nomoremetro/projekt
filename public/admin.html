@@ -2,286 +2,535 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Админка - Заявки</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админ-панель EcoShyna</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
-    .container {
-      max-width: 800px;
-      margin: 2rem auto;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+    body {
+      font-family: 'Inter', 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #e0f2fe 0%, #c7e9fb 100%);
+      min-height: 100vh;
       padding: 2rem;
     }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 28px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      padding: 2rem;
+      transition: all 0.3s;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
     h1, h2 {
-      color: #004080;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      color: #0a2540;
+      margin-bottom: 1rem;
+    }
+    h1 i, h2 i {
+      margin-right: 12px;
+      color: #2c7da0;
     }
     .hidden {
-      display: none;
+      display: none !important;
     }
-    #requests-container {
-      white-space: pre-wrap;
-      font-family: monospace;
-      background: #f9f9f9;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      max-height: 400px;
-      overflow-y: auto;
-      margin-top: 1rem;
-      border-radius: 4px;
+    /* Логин-форма */
+    .login-form {
+      max-width: 400px;
+      margin: 0 auto;
     }
-    .error {
-      color: #c00;
-      margin-top: 1rem;
-      font-size: 0.9em;
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    .form-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: #0a2540;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,0.1);
+      background: rgba(255,255,255,0.9);
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #2c7da0;
+      box-shadow: 0 0 0 3px rgba(44,125,160,0.2);
+    }
+    button {
+      background: linear-gradient(135deg, #2c7da0, #1f6392);
+      border: none;
+      padding: 12px 24px;
+      border-radius: 40px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .logout-btn {
+      background: #e74c3c;
+    }
+    .logout-btn:hover {
+      background: #c0392b;
     }
     .admin-menu {
-      margin-bottom: 2rem;
       display: flex;
       flex-wrap: wrap;
       gap: 1rem;
+      margin-bottom: 2rem;
       align-items: center;
+      justify-content: space-between;
     }
-    .admin-menu button {
-      padding: 0.5em 1.2em;
-      border-radius: 6px;
-      border: none;
-      background: #004080;
-      color: #fff;
-      cursor: pointer;
-      font-size: 0.9em;
-      transition: background 0.2s;
-    }
-    .admin-menu button:hover {
-      background: #0055a6;
-    }
-    .admin-menu button.active {
-      background: #0077cc;
-    }
-    .admin-menu button.logout-btn {
-      background: #c00;
-    }
-    .admin-menu button.logout-btn:hover {
-      background: #a00;
-    }
-    .admin-menu .date-filter {
+    .filter-buttons {
       display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    .filter-buttons button {
+      background: rgba(44,125,160,0.2);
+      color: #0a2540;
+      padding: 8px 18px;
+      font-size: 0.9rem;
+    }
+    .filter-buttons button.active {
+      background: #2c7da0;
+      color: white;
+    }
+    .date-picker {
+      display: flex;
+      gap: 0.5rem;
       align-items: center;
+    }
+    .date-picker input {
+      padding: 8px 12px;
+      border-radius: 40px;
+      border: 1px solid #ccc;
+      background: white;
+    }
+    .requests-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .request-card {
+      background: white;
+      border-radius: 20px;
+      padding: 1.2rem;
+      border-left: 5px solid #2c7da0;
+      transition: 0.2s;
+    }
+    .request-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .request-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
       gap: 0.5rem;
     }
-    .admin-menu .date-filter label {
-      font-size: 0.9em;
-      color: #333;
+    .request-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #0a2540;
     }
-    .admin-menu .date-filter input[type="date"] {
-      padding: 0.5em;
-      border-radius: 4px;
+    .request-date {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .request-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+    .request-detail {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+    }
+    .request-detail i {
+      width: 20px;
+      color: #2c7da0;
+    }
+    .request-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+    .status-completed {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status-cancelled {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .chat-section {
+      margin-top: 2rem;
+    }
+    .chat-messages-list {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.5);
+      border-radius: 20px;
+    }
+    .chat-message {
+      padding: 0.8rem;
+      margin-bottom: 0.8rem;
+      border-radius: 16px;
+      background: white;
+    }
+    .chat-message .meta {
+      font-size: 0.75rem;
+      color: #666;
+      margin-bottom: 0.4rem;
+    }
+    .chat-message .text {
+      font-size: 0.9rem;
+    }
+    .chat-reply {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .chat-reply input {
+      flex: 1;
+      padding: 10px 16px;
+      border-radius: 40px;
       border: 1px solid #ccc;
-      font-size: 0.9em;
     }
-    .login-form label {
-      display: block;
-      margin-bottom: 0.3em;
-      font-weight: bold;
-      color: #333;
+    .error-message {
+      color: #e74c3c;
+      margin-top: 1rem;
+      text-align: center;
     }
-    .login-form input {
-      width: 100%;
-      padding: 0.5em;
-      margin-bottom: 1em;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      font-size: 1em;
-    }
-    .login-form button {
-      width: 100%;
-      padding: 0.7em;
-      border-radius: 6px;
-      border: none;
-      background: #004080;
-      color: #fff;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .login-form button:hover {
-      background: #0055a6;
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .glass-card { padding: 1rem; }
+      .admin-menu { flex-direction: column; align-items: stretch; }
+      .filter-buttons { justify-content: center; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div id="login-section">
-      <h1>Вход для администратора</h1>
-      <form class="login-form" onsubmit="return adminLogin(event)">
-        <label for="login">Логин</label>
-        <input type="text" id="login" required autocomplete="username" aria-describedby="login-error">
-        <label for="password">Пароль</label>
-        <input type="password" id="password" required autocomplete="current-password" aria-describedby="login-error">
-        <button type="submit">Войти</button>
-      </form>
-      <div id="login-error" class="error" style="display: none;"></div>
+<div class="container">
+  <!-- Секция логина -->
+  <div id="login-section" class="glass-card" style="max-width: 500px; margin: 0 auto;">
+    <h1><i class="fas fa-shield-alt"></i> Вход в панель администратора</h1>
+    <form class="login-form" onsubmit="return adminLogin(event)">
+      <div class="form-group">
+        <label><i class="fas fa-user"></i> Логин</label>
+        <input type="text" id="admin-login" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-lock"></i> Пароль</label>
+        <input type="password" id="admin-password" required autocomplete="current-password">
+      </div>
+      <button type="submit"><i class="fas fa-sign-in-alt"></i> Войти</button>
+      <div id="login-error" class="error-message" style="display: none;"></div>
+    </form>
+  </div>
+
+  <!-- Секция админ-панели (скрыта) -->
+  <div id="admin-section" class="hidden">
+    <div class="glass-card">
+      <div class="admin-menu">
+        <h2><i class="fas fa-tasks"></i> Управление заявками</h2>
+        <button class="logout-btn" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+      </div>
+
+      <div class="filter-buttons">
+        <button id="filter-all" class="active" onclick="filterRequests('all')">Все заявки</button>
+        <button id="filter-today" onclick="filterRequests('today')">Сегодня</button>
+        <button id="filter-yesterday" onclick="filterRequests('yesterday')">Вчера</button>
+        <button id="filter-future" onclick="filterRequests('future')">Будущие</button>
+        <div class="date-picker">
+          <input type="date" id="custom-date" onchange="filterRequests('custom')">
+          <button onclick="filterRequests('custom')">Выбрать</button>
+        </div>
+        <button onclick="loadRequests()"><i class="fas fa-sync-alt"></i> Обновить</button>
+      </div>
+
+      <div id="requests-container" class="requests-grid">
+        <p style="text-align:center; color:#666;">Загрузка заявок...</p>
+      </div>
     </div>
 
-    <div id="admin-section" class="hidden">
-      <div class="admin-menu">
-        <span style="font-weight: bold; color: #004080;">Панель администратора</span>
-        <button id="btn-all" class="active" onclick="filterRequests('all')" aria-label="Показать все заявки">Все заявки</button>
-        <button id="btn-today" onclick="filterRequests('today')" aria-label="Показать заявки за сегодня">Сегодня</button>
-        <button id="btn-yesterday" onclick="filterRequests('yesterday')" aria-label="Показать заявки за вчера">Вчера</button>
-        <button id="btn-future" onclick="filterRequests('future')" aria-label="Показать заявки на будущие дни">Будущие дни</button>
-        <div class="date-filter">
-          <label for="date-picker">Выбрать дату:</label>
-          <input type="date" id="date-picker" onchange="filterRequests('specific')" aria-label="Выбрать конкретную дату для фильтрации заявок">
-        </div>
-        <button onclick="loadRequests()" aria-label="Обновить список заявок">Обновить</button>
-        <button class="logout-btn" onclick="adminLogout()" aria-label="Выйти из панели администратора">Выйти</button>
+    <!-- Секция чата с оператором -->
+    <div class="glass-card chat-section" style="margin-top: 2rem;">
+      <h2><i class="fas fa-comments"></i> Чат поддержки</h2>
+      <div id="chat-messages-container" class="chat-messages-list">
+        <p>Загрузка сообщений...</p>
       </div>
-      <div id="requests-block">
-        <h2>Заявки на вывоз</h2>
-        <div id="requests-container">Загрузка заявок...</div>
+      <div class="chat-reply">
+        <input type="text" id="admin-chat-reply" placeholder="Ответить пользователю...">
+        <button onclick="sendOperatorReply()"><i class="fas fa-paper-plane"></i> Отправить</button>
       </div>
+      <div id="chat-error" class="error-message" style="display: none;"></div>
     </div>
   </div>
-  <script>
-    function adminLogin(event) {
-      event.preventDefault();
-      const login = document.getElementById('login').value.trim();
-      const password = document.getElementById('password').value;
-      const errorDiv = document.getElementById('login-error');
-      errorDiv.style.display = 'none';
-      errorDiv.textContent = '';
+</div>
 
-      fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ login, password })
-      })
-      .then(res => {
-        if (!res.ok) throw new Error('Неверный логин или пароль');
-        return res.json();
-      })
-      .then(data => {
-        if (data.success) {
-          localStorage.setItem('isAdmin', '1');
-          document.getElementById('login-section').classList.add('hidden');
-          document.getElementById('admin-section').classList.remove('hidden');
-          loadRequests();
-        } else {
-          errorDiv.textContent = data.message || 'Ошибка входа';
-          errorDiv.style.display = 'block';
-        }
-      })
-      .catch(err => {
-        errorDiv.textContent = 'Ошибка входа: ' + err.message;
-        errorDiv.style.display = 'block';
-      });
-      return false;
-    }
+<script>
+  // Глобальные переменные
+  let allRequests = [];
+  let currentFilter = 'all';
+  let adminToken = localStorage.getItem('adminToken');
 
-    function adminLogout() {
-      localStorage.removeItem('isAdmin');
-      document.getElementById('admin-section').classList.add('hidden');
-      document.getElementById('login-section').classList.remove('hidden');
-      document.getElementById('requests-container').textContent = 'Загрузка заявок...';
-    }
+  // Проверка авторизации при загрузке
+  if (adminToken === 'authenticated') {
+    document.getElementById('login-section').classList.add('hidden');
+    document.getElementById('admin-section').classList.remove('hidden');
+    loadRequests();
+    loadChatMessages();
+  }
 
-    function loadRequests() {
-      const container = document.getElementById('requests-container');
-      container.textContent = 'Загрузка заявок...';
-      fetch('/api/admin/requests')
-        .then(res => {
-          if (!res.ok) throw new Error('Ошибка загрузки заявок');
-          return res.text();
-        })
-        .then(data => {
-          container.textContent = data.trim() || 'Заявок пока нет.';
-          filterRequests('all'); // Apply default filter
-        })
-        .catch(err => {
-          container.textContent = 'Не удалось загрузить заявки.';
-          console.error(err);
-        });
-    }
+  // Логин админа
+  async function adminLogin(e) {
+    e.preventDefault();
+    const login = document.getElementById('admin-login').value.trim();
+    const password = document.getElementById('admin-password').value;
+    const errorDiv = document.getElementById('login-error');
 
-    function filterRequests(filterType) {
-      const container = document.getElementById('requests-container');
-      const buttons = document.querySelectorAll('.admin-menu button:not(.logout-btn):not([onclick="loadRequests()"])');
-      buttons.forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`btn-${filterType}`).classList.add('active');
-
-      let requests = container.textContent.split('\n--------------------\n').filter(r => r.trim());
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const yesterday = new Date(today);
-      yesterday.setDate(today.getDate() - 1);
-      const samaraOffset = 4 * 60; // Samara is UTC+4
-
-      if (filterType === 'specific') {
-        const datePicker = document.getElementById('date-picker').value;
-        if (!datePicker) {
-          container.textContent = 'Пожалуйста, выберите дату.';
-          return;
-        }
-        const selectedDate = new Date(datePicker);
-        selectedDate.setHours(0, 0, 0, 0);
-        requests = requests.filter(request => {
-          const submittedAtMatch = request.match(/Подача: (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/);
-          if (submittedAtMatch) {
-            const submittedDate = new Date(submittedAtMatch[1]);
-            submittedDate.setHours(0, 0, 0, 0);
-            return submittedDate.getTime() === selectedDate.getTime();
-          }
-          return false;
-        });
-      } else if (filterType === 'today') {
-        requests = requests.filter(request => {
-          const submittedAtMatch = request.match(/Подача: (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/);
-          if (submittedAtMatch) {
-            const submittedDate = new Date(submittedAtMatch[1]);
-            submittedDate.setHours(0, 0, 0, 0);
-            return submittedDate.getTime() === today.getTime();
-          }
-          return false;
-        });
-      } else if (filterType === 'yesterday') {
-        requests = requests.filter(request => {
-          const submittedAtMatch = request.match(/Подача: (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/);
-          if (submittedAtMatch) {
-            const submittedDate = new Date(submittedAtMatch[1]);
-            submittedDate.setHours(0, 0, 0, 0);
-            return submittedDate.getTime() === yesterday.getTime();
-          }
-          return false;
-        });
-      } else if (filterType === 'future') {
-        requests = requests.filter(request => {
-          const submittedAtMatch = request.match(/Подача: (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/);
-          if (submittedAtMatch) {
-            const submittedDate = new Date(submittedAtMatch[1]);
-            submittedDate.setHours(0, 0, 0, 0);
-            return submittedDate.getTime() > today.getTime();
-          }
-          return false;
-        });
-      }
-
-      container.textContent = requests.length > 0 ? requests.join('\n--------------------\n') : 'Нет заявок за выбранный период.';
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem('isAdmin') === '1') {
-        document.getElementById('login-section').classList.add('hidden');
-        document.getElementById('admin-section').classList.remove('hidden');
-        loadRequests();
-      }
+    const response = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ login, password })
     });
-  </script>
+    const data = await response.json();
+    if (data.success) {
+      localStorage.setItem('adminToken', 'authenticated');
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('admin-section').classList.remove('hidden');
+      loadRequests();
+      loadChatMessages();
+    } else {
+      errorDiv.textContent = data.message || 'Неверный логин или пароль';
+      errorDiv.style.display = 'block';
+    }
+    return false;
+  }
+
+  function adminLogout() {
+    localStorage.removeItem('adminToken');
+    document.getElementById('admin-section').classList.add('hidden');
+    document.getElementById('login-section').classList.remove('hidden');
+    document.getElementById('admin-login').value = '';
+    document.getElementById('admin-password').value = '';
+  }
+
+  // Загрузка заявок с сервера
+  async function loadRequests() {
+    try {
+      const response = await fetch('/api/requests');
+      if (!response.ok) throw new Error('Ошибка загрузки');
+      const requests = await response.json();
+      allRequests = requests;
+      applyFilter(currentFilter);
+    } catch (err) {
+      document.getElementById('requests-container').innerHTML = `<p style="color:#c00;">Ошибка загрузки заявок: ${err.message}</p>`;
+    }
+  }
+
+  // Применение фильтра
+  function filterRequests(type) {
+    currentFilter = type;
+    // Активные кнопки
+    document.querySelectorAll('.filter-buttons button').forEach(btn => btn.classList.remove('active'));
+    if (type === 'all') document.getElementById('filter-all').classList.add('active');
+    else if (type === 'today') document.getElementById('filter-today').classList.add('active');
+    else if (type === 'yesterday') document.getElementById('filter-yesterday').classList.add('active');
+    else if (type === 'future') document.getElementById('filter-future').classList.add('active');
+    
+    let filtered = [...allRequests];
+    const now = new Date();
+    const samaraDate = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // UTC+4
+    const todayStr = samaraDate.toISOString().slice(0,10);
+    const yesterday = new Date(samaraDate);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().slice(0,10);
+
+    if (type === 'today') {
+      filtered = filtered.filter(req => req.submittedAt && req.submittedAt.slice(0,10) === todayStr);
+    } else if (type === 'yesterday') {
+      filtered = filtered.filter(req => req.submittedAt && req.submittedAt.slice(0,10) === yesterdayStr);
+    } else if (type === 'future') {
+      filtered = filtered.filter(req => req.submittedAt && req.submittedAt.slice(0,10) > todayStr);
+    } else if (type === 'custom') {
+      const customDate = document.getElementById('custom-date').value;
+      if (customDate) {
+        filtered = filtered.filter(req => req.submittedAt && req.submittedAt.slice(0,10) === customDate);
+      }
+    }
+
+    renderRequests(filtered);
+  }
+
+  // Отрисовка заявок
+  function renderRequests(requests) {
+    const container = document.getElementById('requests-container');
+    if (!requests.length) {
+      container.innerHTML = '<p style="text-align:center; color:#666;">Нет заявок за выбранный период.</p>';
+      return;
+    }
+    container.innerHTML = requests.map(req => `
+      <div class="request-card">
+        <div class="request-header">
+          <span class="request-name">${escapeHtml(req.name || 'Не указано')}</span>
+          <span class="request-date">${req.submittedAt ? new Date(req.submittedAt).toLocaleString('ru-RU') : '—'}</span>
+        </div>
+        <div class="request-details">
+          <div class="request-detail"><i class="fas fa-phone"></i> ${escapeHtml(req.phone || '—')}</div>
+          <div class="request-detail"><i class="fas fa-envelope"></i> ${escapeHtml(req.email || '—')}</div>
+          <div class="request-detail"><i class="fas fa-weight-hanging"></i> ${req.weight || '—'} кг</div>
+          <div class="request-detail"><i class="fas fa-calendar-alt"></i> ${req.date || '—'}</div>
+          <div class="request-detail"><i class="fas fa-clock"></i> ${req.time || '—'}</div>
+          <div class="request-detail"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(req.address || '—')}</div>
+        </div>
+        <div class="request-header">
+          <span class="request-status status-${req.status || 'pending'}">${getStatusText(req.status)}</span>
+          <div>
+            <button onclick="updateRequestStatus(${req.id}, 'completed')" style="background:#2ecc71; padding:4px 12px; font-size:0.8rem;"><i class="fas fa-check"></i> Завершить</button>
+            <button onclick="updateRequestStatus(${req.id}, 'cancelled')" style="background:#e74c3c; padding:4px 12px; font-size:0.8rem;"><i class="fas fa-times"></i> Отменить</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function getStatusText(status) {
+    switch(status) {
+      case 'completed': return 'Выполнено';
+      case 'cancelled': return 'Отменено';
+      default: return 'В обработке';
+    }
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  // Обновление статуса заявки
+  async function updateRequestStatus(id, status) {
+    const response = await fetch('/api/requests/status', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status })
+    });
+    if (response.ok) {
+      loadRequests(); // перезагружаем список
+    } else {
+      alert('Ошибка обновления статуса');
+    }
+  }
+
+  // Загрузка сообщений чата
+  async function loadChatMessages() {
+    try {
+      const response = await fetch('/api/chat/messages');
+      if (!response.ok) throw new Error();
+      const messages = await response.json();
+      renderChatMessages(messages);
+    } catch (err) {
+      document.getElementById('chat-messages-container').innerHTML = '<p>Ошибка загрузки сообщений</p>';
+    }
+  }
+
+  function renderChatMessages(messages) {
+    const container = document.getElementById('chat-messages-container');
+    if (!messages || messages.length === 0) {
+      container.innerHTML = '<p>Нет сообщений в чате.</p>';
+      return;
+    }
+    container.innerHTML = messages.map(msg => `
+      <div class="chat-message">
+        <div class="meta">
+          <strong>${escapeHtml(msg.userName || 'Гость')}</strong> · ${new Date(msg.createdAt).toLocaleString('ru-RU')}
+          ${msg.isOperator ? '<span style="color:#2c7da0;"> (Оператор)</span>' : ''}
+        </div>
+        <div class="text">${escapeHtml(msg.text)}</div>
+      </div>
+    `).join('');
+    // Прокрутка вниз
+    container.scrollTop = container.scrollHeight;
+  }
+
+  // Ответ оператора
+  async function sendOperatorReply() {
+    const input = document.getElementById('admin-chat-reply');
+    const text = input.value.trim();
+    if (!text) return;
+    // Предполагаем, что нужно ответить последнему активному пользователю или выбрать конкретный диалог
+    // Для простоты ответим последнему, кто писал (или в общий канал)
+    const response = await fetch('/api/chat/operator', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, userId: null }) // в реальном проекте нужно указывать user_id
+    });
+    if (response.ok) {
+      input.value = '';
+      loadChatMessages();
+    } else {
+      document.getElementById('chat-error').textContent = 'Ошибка отправки';
+      document.getElementById('chat-error').style.display = 'block';
+      setTimeout(() => document.getElementById('chat-error').style.display = 'none', 3000);
+    }
+  }
+
+  // Периодическое обновление (каждые 10 секунд)
+  setInterval(() => {
+    if (localStorage.getItem('adminToken') === 'authenticated') {
+      loadRequests();
+      loadChatMessages();
+    }
+  }, 10000);
+
+  window.updateRequestStatus = updateRequestStatus;
+</script>
 </body>
 </html>
