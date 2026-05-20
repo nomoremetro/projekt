@@ -6,531 +6,357 @@
   <title>Админ-панель EcoShyna</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+
+    /* Подключение пиксельного шрифта */
+    @font-face {
+      font-family: 'DigitalPixel';
+      src: url('/fonts/DigitalPixelV124-Regular.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
     }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', 'Montserrat', sans-serif;
+      font-family: 'DigitalPixel', 'Inter', monospace;
       background: linear-gradient(135deg, #e0f2fe 0%, #c7e9fb 100%);
       min-height: 100vh;
-      padding: 2rem;
+      padding: 1.5rem;
     }
-    .glass-card {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      border-radius: 28px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      padding: 2rem;
-      transition: all 0.3s;
-    }
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    h1, h2 {
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 700;
-      color: #0a2540;
-      margin-bottom: 1rem;
-    }
-    h1 i, h2 i {
-      margin-right: 12px;
-      color: #2c7da0;
-    }
-    .hidden {
-      display: none !important;
-    }
-    /* Логин-форма */
-    .login-form {
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    .form-group {
-      margin-bottom: 1.2rem;
-    }
-    .form-group label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-      color: #0a2540;
-    }
-    .form-group input {
-      width: 100%;
-      padding: 12px 16px;
-      border-radius: 16px;
-      border: 1px solid rgba(0,0,0,0.1);
-      background: rgba(255,255,255,0.9);
-      font-size: 0.95rem;
-      transition: all 0.2s;
-    }
-    .form-group input:focus {
-      outline: none;
-      border-color: #2c7da0;
-      box-shadow: 0 0 0 3px rgba(44,125,160,0.2);
-    }
-    button {
-      background: linear-gradient(135deg, #2c7da0, #1f6392);
-      border: none;
-      padding: 12px 24px;
-      border-radius: 40px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    }
-    .logout-btn {
-      background: #e74c3c;
-    }
-    .logout-btn:hover {
-      background: #c0392b;
-    }
-    .admin-menu {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .filter-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-    }
-    .filter-buttons button {
-      background: rgba(44,125,160,0.2);
-      color: #0a2540;
-      padding: 8px 18px;
-      font-size: 0.9rem;
-    }
-    .filter-buttons button.active {
-      background: #2c7da0;
-      color: white;
-    }
-    .date-picker {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-    .date-picker input {
-      padding: 8px 12px;
-      border-radius: 40px;
-      border: 1px solid #ccc;
-      background: white;
-    }
-    .requests-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-    .request-card {
-      background: white;
-      border-radius: 20px;
-      padding: 1.2rem;
-      border-left: 5px solid #2c7da0;
-      transition: 0.2s;
-    }
-    .request-card:hover {
-      transform: translateX(5px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .request-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.8rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .request-name {
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: #0a2540;
-    }
-    .request-date {
-      font-size: 0.85rem;
-      color: #666;
-    }
-    .request-details {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 0.5rem;
-      margin-bottom: 0.8rem;
-    }
-    .request-detail {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.9rem;
-    }
-    .request-detail i {
-      width: 20px;
-      color: #2c7da0;
-    }
-    .request-status {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 40px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-    .status-pending {
-      background: #fff3cd;
-      color: #856404;
-    }
-    .status-completed {
-      background: #d4edda;
-      color: #155724;
-    }
-    .status-cancelled {
-      background: #f8d7da;
-      color: #721c24;
-    }
-    .chat-section {
-      margin-top: 2rem;
-    }
-    .chat-messages-list {
-      max-height: 400px;
-      overflow-y: auto;
-      margin-bottom: 1rem;
-      padding: 1rem;
-      background: rgba(255,255,255,0.5);
-      border-radius: 20px;
-    }
-    .chat-message {
-      padding: 0.8rem;
-      margin-bottom: 0.8rem;
-      border-radius: 16px;
-      background: white;
-    }
-    .chat-message .meta {
-      font-size: 0.75rem;
-      color: #666;
-      margin-bottom: 0.4rem;
-    }
-    .chat-message .text {
-      font-size: 0.9rem;
-    }
-    .chat-reply {
-      display: flex;
-      gap: 0.5rem;
-    }
-    .chat-reply input {
-      flex: 1;
-      padding: 10px 16px;
-      border-radius: 40px;
-      border: 1px solid #ccc;
-    }
-    .error-message {
-      color: #e74c3c;
-      margin-top: 1rem;
-      text-align: center;
-    }
-    @media (max-width: 768px) {
-      body { padding: 1rem; }
-      .glass-card { padding: 1rem; }
-      .admin-menu { flex-direction: column; align-items: stretch; }
-      .filter-buttons { justify-content: center; }
-    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #e0f2fe 0%, #c7e9fb 100%); min-height: 100vh; padding: 1.5rem; }
+    .two-columns { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .column-left { flex: 1.5; min-width: 400px; }
+    .column-right { flex: 1; min-width: 380px; }
+    .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-radius: 28px; box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05); border: 1px solid rgba(255, 255, 255, 0.5); padding: 1.5rem; height: 100%; }
+    h1, h2 { font-weight: 700; color: #0a2540; margin-bottom: 1rem; font-size: 1.4rem; }
+    h1 i, h2 i { margin-right: 10px; color: #2c7da0; }
+    .hidden { display: none !important; }
+    .login-form { max-width: 400px; margin: 0 auto; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: flex; align-items: center; gap: 8px; font-weight: 500; margin-bottom: 0.5rem; }
+    .form-group input { width: 100%; padding: 12px 16px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.9); }
+    button { background: linear-gradient(135deg, #2c7da0, #1f6392); border: none; padding: 10px 20px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+    .logout-btn { background: #e74c3c; }
+    .filter-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+    .filter-buttons button { background: rgba(44,125,160,0.2); color: #0a2540; padding: 6px 14px; font-size: 0.8rem; }
+    .filter-buttons button.active { background: #2c7da0; color: white; }
+    .date-picker { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.5rem; }
+    .date-picker input { padding: 6px 10px; border-radius: 40px; border: 1px solid #ccc; background: white; }
+    .requests-list { max-height: 55vh; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem; }
+    .request-card { background: white; border-radius: 16px; padding: 1rem; border-left: 4px solid #2c7da0; transition: 0.2s; }
+    .request-card:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .request-header { display: flex; justify-content: space-between; flex-wrap: wrap; margin-bottom: 0.6rem; }
+    .request-name { font-weight: 700; font-size: 1rem; }
+    .request-date { font-size: 0.8rem; color: #e74c3c; font-weight: bold; }
+    .request-details { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 0.6rem; font-size: 0.8rem; }
+    .request-details i { width: 18px; color: #2c7da0; }
+    .request-status { display: inline-block; padding: 2px 10px; border-radius: 40px; font-size: 0.7rem; }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-completed { background: #d4edda; color: #155724; }
+    .status-cancelled { background: #f8d7da; color: #721c24; }
+    .dialogs-list { max-height: 200px; overflow-y: auto; margin-bottom: 1rem; border-radius: 16px; }
+    .dialog-item { background: rgba(255,255,255,0.7); margin-bottom: 0.4rem; padding: 0.6rem 0.8rem; border-radius: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+    .dialog-item.active { background: #d4edda; border-left: 3px solid #2ecc71; }
+    .dialog-item:hover { background: white; }
+    .close-dialog-btn { background: #e74c3c; padding: 2px 8px; font-size: 0.7rem; }
+    .chat-messages-area { max-height: 350px; overflow-y: auto; margin-bottom: 1rem; padding: 0.8rem; background: rgba(255,255,255,0.5); border-radius: 20px; }
+    .chat-message { padding: 0.5rem 0.8rem; margin-bottom: 0.6rem; border-radius: 14px; background: white; }
+    .chat-message .meta { font-size: 0.7rem; color: #666; margin-bottom: 0.3rem; }
+    .chat-message .text { font-size: 0.85rem; word-break: break-word; }
+    .chat-message .file-attachment { margin-top: 0.4rem; }
+    .chat-message .file-attachment a { color: #2c7da0; text-decoration: none; font-size: 0.75rem; }
+    .chat-input-area { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    .chat-input-area input { flex: 1; padding: 8px 14px; border-radius: 40px; border: 1px solid #ccc; background: white; }
+    .file-upload-btn { background: #5a6e7a; padding: 8px 12px; }
+    .error-message { color: #e74c3c; margin-top: 0.5rem; text-align: center; font-size: 0.8rem; }
+    @media (max-width: 900px) { .two-columns { flex-direction: column; } .column-left, .column-right { min-width: auto; } }
   </style>
 </head>
 <body>
 <div class="container">
-  <!-- Секция логина -->
-  <div id="login-section" class="glass-card" style="max-width: 500px; margin: 0 auto;">
-    <h1><i class="fas fa-shield-alt"></i> Вход в панель администратора</h1>
+  <div id="login-section" class="glass-card" style="max-width: 450px; margin: 0 auto;">
+    <h1><i class="fas fa-shield-alt"></i> Вход администратора</h1>
     <form class="login-form" onsubmit="return adminLogin(event)">
-      <div class="form-group">
-        <label><i class="fas fa-user"></i> Логин</label>
-        <input type="text" id="admin-login" required autocomplete="username">
-      </div>
-      <div class="form-group">
-        <label><i class="fas fa-lock"></i> Пароль</label>
-        <input type="password" id="admin-password" required autocomplete="current-password">
-      </div>
+      <div class="form-group"><label><i class="fas fa-user"></i> Логин</label><input type="text" id="admin-login" required></div>
+      <div class="form-group"><label><i class="fas fa-lock"></i> Пароль</label><input type="password" id="admin-password" required></div>
       <button type="submit"><i class="fas fa-sign-in-alt"></i> Войти</button>
       <div id="login-error" class="error-message" style="display: none;"></div>
     </form>
   </div>
 
-  <!-- Секция админ-панели (скрыта) -->
   <div id="admin-section" class="hidden">
-    <div class="glass-card">
-      <div class="admin-menu">
-        <h2><i class="fas fa-tasks"></i> Управление заявками</h2>
-        <button class="logout-btn" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i> Выйти</button>
-      </div>
-
-      <div class="filter-buttons">
-        <button id="filter-all" class="active" onclick="filterRequests('all')">Все заявки</button>
-        <button id="filter-today" onclick="filterRequests('today')">Сегодня</button>
-        <button id="filter-yesterday" onclick="filterRequests('yesterday')">Вчера</button>
-        <button id="filter-future" onclick="filterRequests('future')">Будущие</button>
-        <div class="date-picker">
-          <input type="date" id="custom-date" onchange="filterRequests('custom')">
-          <button onclick="filterRequests('custom')">Выбрать</button>
+    <div class="two-columns">
+      <div class="column-left">
+        <div class="glass-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <h2><i class="fas fa-tasks"></i> Управление заявками</h2>
+            <button class="logout-btn" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+          </div>
+          
+          <div class="filter-buttons">
+            <button id="filter-all" class="active" onclick="applyFilter('all')">Все</button>
+            <button id="filter-today" onclick="applyFilter('today')">На сегодня</button>
+            <button id="filter-tomorrow" onclick="applyFilter('tomorrow')">На завтра</button>
+            <button id="filter-future" onclick="applyFilter('future')">Будущие</button>
+          </div>
+          <div class="date-picker">
+            <input type="date" id="custom-date" onchange="applyFilter('custom')">
+            <button onclick="applyFilter('custom')">Выбрать дату</button>
+            <button onclick="loadRequests()"><i class="fas fa-sync-alt"></i> Обновить</button>
+          </div>
+          <div id="requests-container" class="requests-list"><p>Загрузка заявок...</p></div>
         </div>
-        <button onclick="loadRequests()"><i class="fas fa-sync-alt"></i> Обновить</button>
       </div>
-
-      <div id="requests-container" class="requests-grid">
-        <p style="text-align:center; color:#666;">Загрузка заявок...</p>
+      
+      <div class="column-right">
+        <div class="glass-card">
+          <h2><i class="fas fa-comments"></i> Чат поддержки</h2>
+          <div id="dialogs-list" class="dialogs-list">Загрузка диалогов...</div>
+          <div id="chat-area" style="display: none;">
+            <div class="chat-messages-area" id="chat-messages-container"></div>
+            <div class="chat-input-area">
+              <input type="text" id="admin-chat-reply" placeholder="Введите сообщение..." onkeypress="if(event.key==='Enter') sendOperatorReply()">
+              <button onclick="document.getElementById('chat-file-input').click()" class="file-upload-btn"><i class="fas fa-paperclip"></i></button>
+              <input type="file" id="chat-file-input" style="display:none" accept="image/*" onchange="sendFileAsMessage()">
+              <button onclick="sendOperatorReply()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            <div style="margin-top: 0.5rem;">
+              <button onclick="closeCurrentDialog()" class="close-dialog-btn" style="background:#e74c3c; width:100%;"><i class="fas fa-check-double"></i> Завершить диалог</button>
+            </div>
+          </div>
+          <div id="chat-error" class="error-message" style="display: none;"></div>
+        </div>
       </div>
-    </div>
-
-    <!-- Секция чата с оператором -->
-    <div class="glass-card chat-section" style="margin-top: 2rem;">
-      <h2><i class="fas fa-comments"></i> Чат поддержки</h2>
-      <div id="chat-messages-container" class="chat-messages-list">
-        <p>Загрузка сообщений...</p>
-      </div>
-      <div class="chat-reply">
-        <input type="text" id="admin-chat-reply" placeholder="Ответить пользователю...">
-        <button onclick="sendOperatorReply()"><i class="fas fa-paper-plane"></i> Отправить</button>
-      </div>
-      <div id="chat-error" class="error-message" style="display: none;"></div>
     </div>
   </div>
 </div>
 
 <script>
-  // Глобальные переменные
-  let allRequests = [];
-  let currentFilter = 'all';
-  let adminToken = localStorage.getItem('adminToken');
+let allRequests = [];
+let currentFilter = 'all';
+let dialogs = [];
+let currentDialogId = null;
 
-  // Проверка авторизации при загрузке
-  if (adminToken === 'authenticated') {
-    document.getElementById('login-section').classList.add('hidden');
-    document.getElementById('admin-section').classList.remove('hidden');
-    loadRequests();
-    loadChatMessages();
-  }
+if (localStorage.getItem('adminToken') === 'authenticated') {
+  document.getElementById('login-section').classList.add('hidden');
+  document.getElementById('admin-section').classList.remove('hidden');
+  loadRequests();
+  loadDialogs();
+}
 
-  // Логин админа
-  async function adminLogin(e) {
-    e.preventDefault();
-    const login = document.getElementById('admin-login').value.trim();
-    const password = document.getElementById('admin-password').value;
-    const errorDiv = document.getElementById('login-error');
-
-    const response = await fetch('/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+async function adminLogin(e) {
+  e.preventDefault();
+  const login = document.getElementById('admin-login').value.trim();
+  const password = document.getElementById('admin-password').value;
+  const errorDiv = document.getElementById('login-error');
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ login, password })
     });
-    const data = await response.json();
+    const data = await res.json();
     if (data.success) {
       localStorage.setItem('adminToken', 'authenticated');
-      document.getElementById('login-section').classList.add('hidden');
-      document.getElementById('admin-section').classList.remove('hidden');
-      loadRequests();
-      loadChatMessages();
+      location.reload();
     } else {
       errorDiv.textContent = data.message || 'Неверный логин или пароль';
       errorDiv.style.display = 'block';
     }
-    return false;
+  } catch(err) {
+    errorDiv.textContent = 'Ошибка соединения';
+    errorDiv.style.display = 'block';
   }
+}
 
-  function adminLogout() {
-    localStorage.removeItem('adminToken');
-    document.getElementById('admin-section').classList.add('hidden');
-    document.getElementById('login-section').classList.remove('hidden');
-    document.getElementById('admin-login').value = '';
-    document.getElementById('admin-password').value = '';
+function adminLogout() {
+  localStorage.removeItem('adminToken');
+  location.reload();
+}
+
+// ========== ЗАЯВКИ И ФИЛЬТРЫ (ИСПРАВЛЕНО) ==========
+async function loadRequests() {
+  try {
+    const res = await fetch('/api/requests');
+    allRequests = await res.json();
+    applyFilter(currentFilter);
+  } catch(e) {
+    document.getElementById('requests-container').innerHTML = '<p>Ошибка загрузки</p>';
   }
+}
 
-  // Загрузка заявок с сервера
-  async function loadRequests() {
-    try {
-      const response = await fetch('/api/requests');
-      if (!response.ok) throw new Error('Ошибка загрузки');
-      const requests = await response.json();
-      allRequests = requests;
-      applyFilter(currentFilter);
-    } catch (err) {
-      document.getElementById('requests-container').innerHTML = `<p style="color:#c00;">Ошибка загрузки заявок: ${err.message}</p>`;
-    }
-  }
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' })[m]);
+}
 
-  // Применение фильтра
-  function filterRequests(type) {
-    currentFilter = type;
-    // Активные кнопки
-    document.querySelectorAll('.filter-buttons button').forEach(btn => btn.classList.remove('active'));
-    if (type === 'all') document.getElementById('filter-all').classList.add('active');
-    else if (type === 'today') document.getElementById('filter-today').classList.add('active');
-    else if (type === 'yesterday') document.getElementById('filter-yesterday').classList.add('active');
-    else if (type === 'future') document.getElementById('filter-future').classList.add('active');
+function getStatusText(s) {
+  if (s === 'completed') return 'Выполнено';
+  if (s === 'cancelled') return 'Отменено';
+  return 'В обработке';
+}
+
+function applyFilter(type) {
+  currentFilter = type;
+  let filtered = [...allRequests];
+
+  // Берем локальную дату с устройства без смещения зон
+  const todayObj = new Date();
+  const tzOffset = todayObj.getTimezoneOffset() * 60000;
+  const todayStr = (new Date(todayObj - tzOffset)).toISOString().slice(0, 10);
+
+  const tomorrowObj = new Date(todayObj);
+  tomorrowObj.setDate(tomorrowObj.getDate() + 1);
+  const tomorrowStr = (new Date(tomorrowObj - tzOffset)).toISOString().slice(0, 10);
+
+  filtered = filtered.filter(r => {
+    if (!r.date) return true; // Если даты нет, оставляем (на всякий случай)
     
-    let filtered = [...allRequests];
-    const now = new Date();
-    const samaraDate = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // UTC+4
-    const todayStr = samaraDate.toISOString().slice(0,10);
-    const yesterday = new Date(samaraDate);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().slice(0,10);
-
-    if (type === 'today') {
-      filtered = filtered.filter(req => req.submittedAt && req.submittedAt.slice(0,10) === todayStr);
-    } else if (type === 'yesterday') {
-      filtered = filtered.filter(req => req.submittedAt && req.submittedAt.slice(0,10) === yesterdayStr);
-    } else if (type === 'future') {
-      filtered = filtered.filter(req => req.submittedAt && req.submittedAt.slice(0,10) > todayStr);
-    } else if (type === 'custom') {
+    if (type === 'today') return r.date === todayStr;
+    if (type === 'tomorrow') return r.date === tomorrowStr;
+    if (type === 'future') return r.date > todayStr;
+    if (type === 'custom') {
       const customDate = document.getElementById('custom-date').value;
-      if (customDate) {
-        filtered = filtered.filter(req => req.submittedAt && req.submittedAt.slice(0,10) === customDate);
-      }
+      if (customDate) return r.date === customDate;
     }
+    return true; // 'all'
+  });
 
-    renderRequests(filtered);
+  // Обновляем визуальное отображение кнопок
+  document.querySelectorAll('.filter-buttons button').forEach(b => b.classList.remove('active'));
+  if (type !== 'custom') {
+      document.getElementById(`filter-${type}`).classList.add('active');
   }
 
-  // Отрисовка заявок
-  function renderRequests(requests) {
-    const container = document.getElementById('requests-container');
-    if (!requests.length) {
-      container.innerHTML = '<p style="text-align:center; color:#666;">Нет заявок за выбранный период.</p>';
-      return;
-    }
-    container.innerHTML = requests.map(req => `
-      <div class="request-card">
-        <div class="request-header">
-          <span class="request-name">${escapeHtml(req.name || 'Не указано')}</span>
-          <span class="request-date">${req.submittedAt ? new Date(req.submittedAt).toLocaleString('ru-RU') : '—'}</span>
-        </div>
-        <div class="request-details">
-          <div class="request-detail"><i class="fas fa-phone"></i> ${escapeHtml(req.phone || '—')}</div>
-          <div class="request-detail"><i class="fas fa-envelope"></i> ${escapeHtml(req.email || '—')}</div>
-          <div class="request-detail"><i class="fas fa-weight-hanging"></i> ${req.weight || '—'} кг</div>
-          <div class="request-detail"><i class="fas fa-calendar-alt"></i> ${req.date || '—'}</div>
-          <div class="request-detail"><i class="fas fa-clock"></i> ${req.time || '—'}</div>
-          <div class="request-detail"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(req.address || '—')}</div>
-        </div>
-        <div class="request-header">
-          <span class="request-status status-${req.status || 'pending'}">${getStatusText(req.status)}</span>
-          <div>
-            <button onclick="updateRequestStatus(${req.id}, 'completed')" style="background:#2ecc71; padding:4px 12px; font-size:0.8rem;"><i class="fas fa-check"></i> Завершить</button>
-            <button onclick="updateRequestStatus(${req.id}, 'cancelled')" style="background:#e74c3c; padding:4px 12px; font-size:0.8rem;"><i class="fas fa-times"></i> Отменить</button>
-          </div>
+  renderRequests(filtered);
+}
+
+function renderRequests(requests) {
+  const container = document.getElementById('requests-container');
+  if (!requests.length) { container.innerHTML = '<p>На выбранную дату заявок нет</p>'; return; }
+  
+  container.innerHTML = requests.map(req => `
+    <div class="request-card">
+      <div class="request-header">
+        <span class="request-name">${escapeHtml(req.name)}</span>
+        <span class="request-date"><i class="fas fa-truck"></i> На: ${req.date} в ${req.time}</span>
+      </div>
+      <div class="request-details">
+        <span><i class="fas fa-phone"></i> ${escapeHtml(req.phone)}</span>
+        <span><i class="fas fa-weight-hanging"></i> ${req.weight} кг</span>
+        <span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(req.city)}, ${escapeHtml(req.street)}, ${escapeHtml(req.house)}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; align-items: center;">
+        <span class="request-status status-${req.status || 'pending'}">${getStatusText(req.status)}</span>
+        <div>
+          <button onclick="updateRequestStatus(${req.id}, 'completed')" style="background:#2ecc71; padding:4px 10px;" title="Завершить"><i class="fas fa-check"></i></button>
+          <button onclick="updateRequestStatus(${req.id}, 'cancelled')" style="background:#e74c3c; padding:4px 10px;" title="Отменить"><i class="fas fa-times"></i></button>
         </div>
       </div>
-    `).join('');
-  }
+    </div>
+  `).join('');
+}
 
-  function getStatusText(status) {
-    switch(status) {
-      case 'completed': return 'Выполнено';
-      case 'cancelled': return 'Отменено';
-      default: return 'В обработке';
-    }
-  }
+async function updateRequestStatus(id, status) {
+  await fetch('/api/requests/status', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, status })
+  });
+  loadRequests();
+}
 
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
-  }
+// ========== ЧАТ ==========
+async function loadDialogs() {
+  try {
+    const res = await fetch('/api/chat/dialogs');
+    dialogs = await res.json();
+    renderDialogs();
+  } catch(e) { }
+}
 
-  // Обновление статуса заявки
-  async function updateRequestStatus(id, status) {
-    const response = await fetch('/api/requests/status', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status })
-    });
-    if (response.ok) {
-      loadRequests(); // перезагружаем список
-    } else {
-      alert('Ошибка обновления статуса');
-    }
-  }
+function renderDialogs() {
+  const container = document.getElementById('dialogs-list');
+  if (!dialogs.length) { container.innerHTML = '<p>Нет активных диалогов</p>'; return; }
+  container.innerHTML = dialogs.map(d => `
+    <div class="dialog-item ${currentDialogId === d.id ? 'active' : ''}" onclick="selectDialog(${d.id})">
+      <span><i class="fas fa-user-circle"></i> <strong>${escapeHtml(d.guest_name)}</strong> <span style="font-size:0.7rem; color:#666;">(${d.messageCount || 0} сообщ.)</span></span>
+      <button class="close-dialog-btn" onclick="event.stopPropagation(); closeDialog(${d.id})"><i class="fas fa-check"></i></button>
+    </div>
+  `).join('');
+}
 
-  // Загрузка сообщений чата
-  async function loadChatMessages() {
-    try {
-      const response = await fetch('/api/chat/messages');
-      if (!response.ok) throw new Error();
-      const messages = await response.json();
-      renderChatMessages(messages);
-    } catch (err) {
-      document.getElementById('chat-messages-container').innerHTML = '<p>Ошибка загрузки сообщений</p>';
-    }
-  }
-
-  function renderChatMessages(messages) {
+async function selectDialog(dialogId) {
+  currentDialogId = dialogId;
+  try {
+    const res = await fetch(`/api/chat/messages/${dialogId}`);
+    const messages = await res.json();
     const container = document.getElementById('chat-messages-container');
-    if (!messages || messages.length === 0) {
-      container.innerHTML = '<p>Нет сообщений в чате.</p>';
-      return;
-    }
-    container.innerHTML = messages.map(msg => `
-      <div class="chat-message">
-        <div class="meta">
-          <strong>${escapeHtml(msg.userName || 'Гость')}</strong> · ${new Date(msg.createdAt).toLocaleString('ru-RU')}
-          ${msg.isOperator ? '<span style="color:#2c7da0;"> (Оператор)</span>' : ''}
+    if (!messages.length) container.innerHTML = '<p>Нет сообщений в диалоге</p>';
+    else {
+      container.innerHTML = messages.map(m => `
+        <div class="chat-message" style="border-left: 3px solid ${m.is_operator ? '#2c7da0' : '#e74c3c'};">
+          <div class="meta"><strong>${escapeHtml(m.user_name)}</strong> · ${new Date(m.created_at).toLocaleString('ru-RU')}</div>
+          <div class="text">${escapeHtml(m.text)}</div>
+          ${m.file_url ? `<div class="file-attachment"><a href="${m.file_url}" target="_blank"><i class="fas fa-download"></i> Прикрепленный файл</a></div>` : ''}
         </div>
-        <div class="text">${escapeHtml(msg.text)}</div>
-      </div>
-    `).join('');
-    // Прокрутка вниз
+      `).join('');
+    }
+    document.getElementById('chat-area').style.display = 'block';
     container.scrollTop = container.scrollHeight;
+    renderDialogs(); // Обновить выделение
+  } catch(e) {}
+}
+
+async function sendOperatorReply() {
+  const input = document.getElementById('admin-chat-reply');
+  const text = input.value.trim();
+  if (!text || !currentDialogId) return;
+  await fetch('/api/chat/operator', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dialogId: currentDialogId, message: text })
+  });
+  input.value = '';
+  await selectDialog(currentDialogId);
+  await loadDialogs();
+}
+
+async function sendFileAsMessage() {
+  const fileInput = document.getElementById('chat-file-input');
+  const file = fileInput.files[0];
+  if (!file || !currentDialogId) return;
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('dialogId', currentDialogId);
+  const res = await fetch('/api/chat/upload', { method: 'POST', body: formData });
+  if (res.ok) { await selectDialog(currentDialogId); await loadDialogs(); }
+  fileInput.value = '';
+}
+
+async function closeDialog(dialogId) {
+  await fetch(`/api/chat/close/${dialogId}`, { method: 'POST' });
+  if (currentDialogId === dialogId) {
+    currentDialogId = null;
+    document.getElementById('chat-area').style.display = 'none';
   }
+  await loadDialogs();
+}
 
-  // Ответ оператора
-  async function sendOperatorReply() {
-    const input = document.getElementById('admin-chat-reply');
-    const text = input.value.trim();
-    if (!text) return;
-    // Предполагаем, что нужно ответить последнему активному пользователю или выбрать конкретный диалог
-    // Для простоты ответим последнему, кто писал (или в общий канал)
-    const response = await fetch('/api/chat/operator', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, userId: null }) // в реальном проекте нужно указывать user_id
-    });
-    if (response.ok) {
-      input.value = '';
-      loadChatMessages();
-    } else {
-      document.getElementById('chat-error').textContent = 'Ошибка отправки';
-      document.getElementById('chat-error').style.display = 'block';
-      setTimeout(() => document.getElementById('chat-error').style.display = 'none', 3000);
-    }
+function closeCurrentDialog() {
+  if (currentDialogId) closeDialog(currentDialogId);
+}
+
+// Автообновление
+setInterval(() => {
+  if (localStorage.getItem('adminToken') === 'authenticated') {
+    loadRequests();
+    loadDialogs();
+    if (currentDialogId) selectDialog(currentDialogId);
   }
-
-  // Периодическое обновление (каждые 10 секунд)
-  setInterval(() => {
-    if (localStorage.getItem('adminToken') === 'authenticated') {
-      loadRequests();
-      loadChatMessages();
-    }
-  }, 10000);
-
-  window.updateRequestStatus = updateRequestStatus;
+}, 5000);
 </script>
 </body>
 </html>
