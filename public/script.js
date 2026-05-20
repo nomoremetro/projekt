@@ -3,13 +3,13 @@ let users = JSON.parse(localStorage.getItem('users')) || [];
 let loggedInUser = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')) : null;
 const defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
 
-// Модальные окна
 const modalBg = document.getElementById('modal-bg');
 const modalContentWrapper = document.getElementById('modal-content-wrapper');
 
-// Статистика
 let totalTyresProcessed = parseInt(localStorage.getItem('totalTyresProcessed') || '0');
-document.getElementById('stat-tyres') && (document.getElementById('stat-tyres').innerText = totalTyresProcessed);
+if (document.getElementById('stat-tyres')) {
+    document.getElementById('stat-tyres').innerText = totalTyresProcessed;
+}
 
 // ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
 function showError(element, message, type = 'error-message') {
@@ -25,7 +25,6 @@ function updateStatsDisplay(value) {
     localStorage.setItem('totalTyresProcessed', value);
 }
 
-// Обновление данных пользователя в localStorage
 function updateUsersStorage() {
     localStorage.setItem('users', JSON.stringify(users));
 }
@@ -34,10 +33,15 @@ function updateLoggedInUserStorage() {
     localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
 }
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]);
+}
+
 // ==================== МОДАЛЬНЫЕ ОКНА ====================
 function openModal(htmlContent) {
     if (!modalContentWrapper || !modalBg) return;
-    modalContentWrapper.innerHTML = `<div class="modal">${htmlContent}<button class="close-modal" onclick="closeModal()" aria-label="Закрыть модальное окно">&times;</button></div>`;
+    modalContentWrapper.innerHTML = `<div class="modal">${htmlContent}<button class="close-modal" onclick="closeModal()">&times;</button></div>`;
     modalBg.classList.add('active');
     modalContentWrapper.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -77,7 +81,7 @@ function closeSideNav() {
     if (sideNav) sideNav.style.width = '0';
 }
 
-// ==================== ПРОКРУТКА К СЕКЦИЯМ ====================
+// ==================== ПРОКРУТКА ====================
 function scrollToSection(sectionId, isFromSideNav = false) {
     if (isFromSideNav) {
         const targetUrl = `index.html#${sectionId}`;
@@ -95,6 +99,33 @@ function scrollToSection(sectionId, isFromSideNav = false) {
     }
 }
 
+// ==================== ЛОАДЕР ====================
+function showLoader(showMario = false) {
+    const overlay = document.getElementById('loader-overlay');
+    const gif = document.getElementById('loader-gif');
+    const text = document.getElementById('loader-text');
+    const fill = document.getElementById('progress-fill');
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+    gif.src = showMario ? 'mario-and-luigi.gif' : '16.gif';
+    text.innerHTML = showMario ? 'Успешно!' : 'Загрузка<span class="dots">...</span>';
+    fill.style.width = '0%';
+    let width = 0;
+    const interval = setInterval(() => {
+        if (width >= 100) clearInterval(interval);
+        else {
+            width += 10;
+            fill.style.width = width + '%';
+        }
+    }, 80);
+    if (showMario) setTimeout(() => hideLoader(), 1500);
+}
+
+function hideLoader() {
+    const overlay = document.getElementById('loader-overlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
 // ==================== АВТОРИЗАЦИЯ ====================
 function openLogin() {
     openModal(`
@@ -102,15 +133,11 @@ function openLogin() {
         <form id="login-form" onsubmit="return login(event)">
             <div class="form-group">
                 <label for="login-username">Имя пользователя или Email</label>
-                <input id="login-username" type="text" required autocomplete="username">
+                <input id="login-username" type="text" required>
             </div>
             <div class="form-group">
                 <label for="login-pass">Пароль</label>
-                <input id="login-pass" type="password" required autocomplete="current-password">
-            </div>
-            <div class="form-group">
-                <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
-                <small style="display:block; margin-top:5px;">(В демо-режиме reCAPTCHA не проверяется)</small>
+                <input id="login-pass" type="password" required>
             </div>
             <button class="btn-main" type="submit" style="width:100%;">Войти</button>
         </form>
@@ -124,27 +151,31 @@ async function login(e) {
     const passVal = document.getElementById('login-pass').value;
     const errorDiv = document.getElementById('login-error');
 
-    // Проверка reCAPTCHA (демо-заглушка)
-    const recaptchaResponse = grecaptcha ? grecaptcha.getResponse() : 'dummy';
-    if (!recaptchaResponse) {
-        showError(errorDiv, 'Подтвердите, что вы не робот.');
-        return false;
-    }
-
-    const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ login: loginVal, password: passVal })
-    });
-    const data = await response.json();
-    if (data.success) {
-        loggedInUser = data.user;
-        updateLoggedInUserStorage();
-        showProfileDisplay();
-        closeModal();
-        location.reload(); // обновляем интерфейс
-    } else {
-        showError(errorDiv, data.message || 'Ошибка входа');
+    showLoader(false);
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ login: loginVal, password: passVal })
+        });
+        const data = await response.json();
+        if (data.success) {
+            loggedInUser = data.user;
+            updateLoggedInUserStorage();
+            showProfileDisplay();
+            closeModal();
+            showLoader(true);
+            setTimeout(() => {
+                hideLoader();
+                location.reload();
+            }, 1500);
+        } else {
+            hideLoader();
+            showError(errorDiv, data.message || 'Ошибка входа');
+        }
+    } catch (err) {
+        hideLoader();
+        showError(errorDiv, 'Ошибка соединения с сервером');
     }
     return false;
 }
@@ -161,7 +192,7 @@ function openRegister() {
                 </select>
             </div>
             <div class="form-group">
-                <label for="reg-username">Имя пользователя (Логин)</label>
+                <label for="reg-username">Имя пользователя</label>
                 <input id="reg-username" type="text" required>
             </div>
             <div class="form-group">
@@ -169,30 +200,14 @@ function openRegister() {
                 <input id="reg-email" type="email" required>
             </div>
             <div class="form-group">
-                <label for="reg-pass">Пароль (мин. 8 симв, 1 цифра)</label>
+                <label for="reg-pass">Пароль (мин. 8 символов, 1 цифра)</label>
                 <input id="reg-pass" type="password" minlength="8" pattern="^(?=.*\\d).{8,}$" required>
             </div>
             <div id="legal-fields" style="display:none;">
-                <div class="form-group">
-                    <label for="reg-company">Название компании</label>
-                    <input id="reg-company" type="text">
-                </div>
-                <div class="form-group">
-                    <label for="reg-inn">ИНН</label>
-                    <input id="reg-inn" type="text">
-                </div>
-                <div class="form-group">
-                    <label for="reg-ogrn">ОГРН</label>
-                    <input id="reg-ogrn" type="text">
-                </div>
-                <div class="form-group">
-                    <label for="reg-address">Юридический адрес</label>
-                    <input id="reg-address" type="text">
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
-                <small style="display:block; margin-top:5px;">(В демо-режиме reCAPTCHA не проверяется)</small>
+                <div class="form-group"><label for="reg-company">Название компании</label><input id="reg-company" type="text"></div>
+                <div class="form-group"><label for="reg-inn">ИНН</label><input id="reg-inn" type="text"></div>
+                <div class="form-group"><label for="reg-ogrn">ОГРН</label><input id="reg-ogrn" type="text"></div>
+                <div class="form-group"><label for="reg-address">Юридический адрес</label><input id="reg-address" type="text"></div>
             </div>
             <button class="btn-main" type="submit" style="width:100%;">Зарегистрироваться</button>
         </form>
@@ -213,13 +228,7 @@ async function register(e) {
     const password = document.getElementById('reg-pass').value;
     const errorDiv = document.getElementById('register-error');
 
-    // reCAPTCHA
-    const recaptchaResponse = grecaptcha ? grecaptcha.getResponse() : 'dummy';
-    if (!recaptchaResponse) {
-        showError(errorDiv, 'Подтвердите, что вы не робот.');
-        return false;
-    }
-
+    showLoader(false);
     const data = {
         username, email, password, role,
         company_name: role === 'legal' ? document.getElementById('reg-company').value : null,
@@ -228,17 +237,27 @@ async function register(e) {
         address_jur: role === 'legal' ? document.getElementById('reg-address').value : null
     };
 
-    const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    });
-    const result = await response.json();
-    if (result.success) {
-        alert('Регистрация успешна! Теперь войдите.');
-        closeModal();
-    } else {
-        showError(errorDiv, result.message || 'Ошибка регистрации');
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (result.success) {
+            showLoader(true);
+            setTimeout(() => {
+                hideLoader();
+                alert('Регистрация успешна! Теперь войдите.');
+                closeModal();
+            }, 1500);
+        } else {
+            hideLoader();
+            showError(errorDiv, result.message || 'Ошибка регистрации');
+        }
+    } catch (err) {
+        hideLoader();
+        showError(errorDiv, 'Ошибка соединения с сервером');
     }
     return false;
 }
@@ -262,15 +281,10 @@ function showProfileDisplay() {
         if (profileNameSidenavSpan) profileNameSidenavSpan.textContent = loggedInUser.username;
         if (profileImageSidenavElem) {
             profileImageSidenavElem.src = loggedInUser.avatar || defaultAvatar;
-            profileImageSidenavElem.alt = `Аватар ${loggedInUser.username}`;
         }
         if (authLinksSidenav) authLinksSidenav.style.display = 'none';
         if (profileSidenav) profileSidenav.style.display = 'flex';
-
-        // Скрываем ссылку на админку для обычных пользователей
-        if (adminLink) {
-            adminLink.style.display = loggedInUser.role === 'admin' ? 'block' : 'none';
-        }
+        if (adminLink) adminLink.style.display = loggedInUser.role === 'admin' ? 'block' : 'none';
         document.body.classList.add('logged-in');
     } else {
         if (authLinksSidenav) authLinksSidenav.style.display = 'block';
@@ -294,13 +308,10 @@ function handleProfileImageUpload(event) {
             const newAvatar = e.target.result;
             loggedInUser.avatar = newAvatar;
             updateLoggedInUserStorage();
-            // Обновляем в массиве users
             const userIndex = users.findIndex(u => u.username === loggedInUser.username);
             if (userIndex !== -1) users[userIndex].avatar = newAvatar;
             updateUsersStorage();
             document.getElementById('profileImageSidenav').src = newAvatar;
-            const modalImg = document.getElementById('profileImageModal');
-            if (modalImg) modalImg.src = newAvatar;
         };
         reader.readAsDataURL(file);
     }
@@ -311,27 +322,15 @@ function openProfileSettings() {
     openModal(`
         <h2>Настройки профиля</h2>
         <form id="profile-settings-form" onsubmit="return saveProfileSettings(event)">
-            <div class="profile-picture-modal-container" style="text-align:center; margin-bottom:1rem;">
-                <img id="profileImageModal" src="${loggedInUser.avatar || defaultAvatar}" alt="Аватар" class="profile-image-round" style="width:80px; height:80px; border-radius:50%; object-fit:cover;">
+            <div style="text-align:center; margin-bottom:1rem;">
+                <img id="profileImageModal" src="${loggedInUser.avatar || defaultAvatar}" alt="Аватар" style="width:80px; height:80px; border-radius:50%; object-fit:cover;">
                 <input type="file" id="profileImageUploadModal" accept="image/*" style="display:none;">
                 <button type="button" class="btn-secondary" style="font-size:0.8rem;" onclick="document.getElementById('profileImageUploadModal').click()">Сменить фото</button>
             </div>
-            <div class="form-group">
-                <label>Имя пользователя</label>
-                <input type="text" id="settings-username" value="${loggedInUser.username}" required>
-            </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="settings-email" value="${loggedInUser.email}" required>
-            </div>
-            <div class="form-group">
-                <label>Новый пароль (оставьте пустым)</label>
-                <input type="password" id="settings-new-pass" minlength="8" pattern="^(?=.*\\d).{8,}$">
-            </div>
-            <div class="form-group">
-                <label>Текущий пароль (обязательно)</label>
-                <input type="password" id="settings-current-pass" required>
-            </div>
+            <div class="form-group"><label>Имя пользователя</label><input type="text" id="settings-username" value="${loggedInUser.username}" required></div>
+            <div class="form-group"><label>Email</label><input type="email" id="settings-email" value="${loggedInUser.email}" required></div>
+            <div class="form-group"><label>Новый пароль</label><input type="password" id="settings-new-pass" minlength="8" pattern="^(?=.*\\d).{8,}$"></div>
+            <div class="form-group"><label>Текущий пароль</label><input type="password" id="settings-current-pass" required></div>
             <button class="btn-main" type="submit">Сохранить</button>
         </form>
         <div id="settings-feedback" style="display:none; margin-top:1rem;"></div>
@@ -353,7 +352,6 @@ async function saveProfileSettings(e) {
         return false;
     }
 
-    // Проверка текущего пароля через сервер
     const loginResponse = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -382,7 +380,6 @@ async function saveProfileSettings(e) {
     });
     const result = await response.json();
     if (result.success) {
-        // Обновляем локальные данные
         loggedInUser = { ...loggedInUser, ...result.user };
         updateLoggedInUserStorage();
         showProfileDisplay();
@@ -412,12 +409,10 @@ function calcTyres(e) {
     const money = (crumb * 12).toFixed(0);
     resultDiv.innerHTML = `
         Из <strong>${w} кг</strong> шин ориентировочно получится:
-        <ul>
-            <li><strong>Резиновая крошка:</strong> ${crumb} кг</li>
-            <li><strong>Металлокорд:</strong> ${metal} кг</li>
-            <li><strong>Текстильный корд:</strong> ${textile} кг</li>
-        </ul>
-        <p>Примерная выгода от сдачи: <strong>${money} руб.</strong> (Расчет является ориентировочным)</p>
+        <ul><li><strong>Резиновая крошка:</strong> ${crumb} кг</li>
+        <li><strong>Металлокорд:</strong> ${metal} кг</li>
+        <li><strong>Текстильный корд:</strong> ${textile} кг</li></ul>
+        <p>Примерная выгода от сдачи: <strong>${money} руб.</strong></p>
     `;
     resultDiv.style.display = 'block';
     totalTyresProcessed += w;
@@ -432,41 +427,52 @@ async function sendRequest(e) {
     const resultDiv = document.getElementById('request-result');
     if (!form) return false;
 
-    // reCAPTCHA
-    const recaptchaResponse = grecaptcha ? grecaptcha.getResponse() : 'dummy';
-    if (!recaptchaResponse) {
-        showError(resultDiv, 'Подтвердите, что вы не робот.', 'error-message');
-        return false;
+    const weight = parseFloat(document.getElementById('req-weight').value);
+    if (weight < 20) {
+        if (!confirm('Минимальный вес для вывоза — 20 кг. Вы можете привезти шины сами. Продолжить оформление?')) {
+            return false;
+        }
     }
 
+    showLoader(false);
     const formData = new URLSearchParams(new FormData(form));
     formData.append('submittedAt', new Date().toISOString());
     if (loggedInUser) formData.append('userId', loggedInUser.id);
 
-    const response = await fetch('/api/request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formData
-    });
-    if (response.ok) {
-        const text = await response.text();
-        showError(resultDiv, text, 'success');
-        form.reset();
-        setMinDateForRequestForm();
-    } else {
-        const err = await response.json();
-        showError(resultDiv, err.message || 'Ошибка отправки', 'error-message');
+    try {
+        const response = await fetch('/api/request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData
+        });
+        if (response.ok) {
+            const text = await response.text();
+            showLoader(true);
+            setTimeout(() => {
+                hideLoader();
+                showError(resultDiv, text, 'success');
+                form.reset();
+                setMinDateForRequestForm();
+            }, 1500);
+        } else {
+            hideLoader();
+            const err = await response.json();
+            showError(resultDiv, err.message || 'Ошибка отправки', 'error-message');
+        }
+    } catch (err) {
+        hideLoader();
+        showError(resultDiv, 'Ошибка соединения', 'error-message');
     }
     return false;
 }
 
-// ==================== ДАТА/ВРЕМЯ ДЛЯ ЗАЯВКИ ====================
+// ==================== ДАТА/ВРЕМЯ ====================
 function setMinDateForRequestForm() {
     const dateInput = document.getElementById('req-date');
     const timeInput = document.getElementById('req-time');
     if (!dateInput) return;
     const today = new Date();
-    today.setHours(today.getHours() + 4); // Самарское время UTC+4
+    today.setHours(today.getHours() + 4);
     const yyyy = today.getFullYear();
     let mm = today.getMonth() + 1;
     let dd = today.getDate();
@@ -491,8 +497,40 @@ function setMinDateForRequestForm() {
     updateTime();
 }
 
-// ==================== ЧАТ (КЛИЕНТСКАЯ ЧАСТЬ) ====================
+// ==================== ЧАТ (КЛИЕНТ) ====================
 let chatOpen = false;
+let currentDialogId = null;
+
+async function initChat() {
+    let guestId = localStorage.getItem('guestId');
+    if (!guestId) {
+        guestId = 'guest_' + Math.random().toString(36).substr(2, 8);
+        localStorage.setItem('guestId', guestId);
+    }
+    // Определяем имя пользователя (если залогинен — берём username)
+    let guestName = 'Гость';
+    if (loggedInUser && loggedInUser.username) {
+        guestName = loggedInUser.username;
+    } else {
+        guestName = `Гость ${guestId.slice(-5)}`;
+    }
+    try {
+        const res = await fetch('/api/chat/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                guestId, 
+                guestName: guestName,
+                userId: loggedInUser ? loggedInUser.id : null
+            })
+        });
+        const data = await res.json();
+        currentDialogId = data.dialogId;
+    } catch (err) {
+        console.error('Чат не инициализирован:', err);
+    }
+}
+
 function toggleChat() {
     const win = document.getElementById('chat-window');
     if (!win) return;
@@ -505,58 +543,158 @@ async function sendChatMessage() {
     const message = input.value.trim();
     if (!message) return;
     const messagesContainer = document.getElementById('chat-messages');
-    // Добавляем сообщение пользователя
+    
+    // Определяем имя пользователя для отображения в админке
+    let displayName = 'Гость';
+    if (loggedInUser && loggedInUser.username) {
+        displayName = loggedInUser.username;
+    } else {
+        let guestId = localStorage.getItem('guestId');
+        if (!guestId) {
+            guestId = 'guest_' + Math.random().toString(36).substr(2, 8);
+            localStorage.setItem('guestId', guestId);
+        }
+        displayName = `Гость ${guestId.slice(-5)}`;
+    }
+    
     const userMsgDiv = document.createElement('div');
     userMsgDiv.className = 'message user';
     userMsgDiv.innerText = message;
     messagesContainer.appendChild(userMsgDiv);
     input.value = '';
-
-    // Отправляем на сервер
-    const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, userId: loggedInUser ? loggedInUser.id : null })
-    });
-    const data = await response.json();
-    const botMsgDiv = document.createElement('div');
-    botMsgDiv.className = 'message bot';
-    botMsgDiv.innerText = data.reply;
-    messagesContainer.appendChild(botMsgDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                message, 
+                userId: loggedInUser ? loggedInUser.id : null, 
+                dialogId: currentDialogId,
+                userName: displayName
+            })
+        });
+        const data = await response.json();
+        const botMsgDiv = document.createElement('div');
+        botMsgDiv.className = 'message bot';
+        botMsgDiv.innerText = data.reply;
+        messagesContainer.appendChild(botMsgDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    } catch (err) {
+        console.error('Ошибка отправки сообщения');
+    }
 }
 
-// ==================== ИНИЦИАЛИЗАЦИЯ ====================
-document.addEventListener('DOMContentLoaded', () => {
-    showProfileDisplay();
-    const currentYear = document.getElementById('currentYear');
-    if (currentYear) currentYear.textContent = new Date().getFullYear();
-
-    // Подключение reCAPTCHA (демо)
-    if (typeof grecaptcha !== 'undefined') {
-        grecaptcha.ready(() => grecaptcha.render('recaptcha', { sitekey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' }));
+async function sendUserFile() {
+    const fileInput = document.getElementById('user-chat-file');
+    const file = fileInput.files[0];
+    if (!file || !currentDialogId) return;
+    
+    if (!file.type.startsWith('image/')) {
+        alert('Можно отправлять только изображения!');
+        fileInput.value = '';
+        return;
     }
-
-    // Анимации
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) entry.target.classList.add('visible');
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('dialogId', currentDialogId);
+    
+    try {
+        const res = await fetch('/api/chat/user-upload', {
+            method: 'POST',
+            body: formData
         });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.interactive-section, .interactive-item').forEach(el => observer.observe(el));
+        if (res.ok) {
+            const msgsContainer = document.getElementById('chat-messages');
+            const botMsgDiv = document.createElement('div');
+            botMsgDiv.className = 'message bot';
+            botMsgDiv.innerHTML = `📷 Фото отправлено оператору`;
+            msgsContainer.appendChild(botMsgDiv);
+            msgsContainer.scrollTop = msgsContainer.scrollHeight;
+        } else {
+            alert('Ошибка отправки фото');
+        }
+    } catch(e) { console.error(e); }
+    fileInput.value = '';
+}
 
-    setMinDateForRequestForm();
-
-    // Яндекс карты (если есть)
-    if (typeof ymaps !== 'undefined' && document.getElementById('yandex-map')) {
-        ymaps.ready(initYandexMap);
+// ==================== НОВОСТИ ====================
+const newsData = [
+    {
+        image: "https://ss.metronews.ru/userfiles/materials/201/2013191/858x540_e2dade20.jpg",
+        title: "В Мособлдуме рассказали о штрафах за утилизацию шин",
+        desc: "Отходы IV класса опасности нельзя выбрасывать в обычные контейнеры.",
+        date: "4 часа назад",
+        link: "https://auto.mail.ru/article/122365-v-mosobldume-rasskazali-kakie-shtrafyi-grozyat-za-nepravilnuyu-utilizatsiyu-shin/"
+    },
+    {
+        image: "https://sgpress.ru/wp-content/uploads/2026/04/f6ee8b00-834b-499f-bff1-a5a51cdc0635-768x512.jpg.webp",
+        title: "В Самаре открыли 5 новых пунктов приёма шин",
+        desc: "Бесплатный сбор старых автопокрышек организовали на улице Товарной.",
+        date: "6 дней назад",
+        link: "https://sgpress.ru/news/551908"
+    },
+    {
+        image: "https://govp.info/media/2026/04/6-1.jpg",
+        title: "Уральцам напомнили о правильной утилизации шин",
+        desc: "С приходом весны во дворах появляются старые покрышки.",
+        date: "3 дня назад",
+        link: "https://obltv.ru/"
+    },
+    {
+        image: "https://46tv.ru/uploads/posts/2026-04/thumbs/1777034721_1.jpg",
+        title: "Омичи сдали на переработку более 25 тонн шин",
+        desc: "Экологическая акция прошла в рамках нацпроекта.",
+        date: "1 неделя назад",
+        link: "https://12-kanal.ru/news/276993/"
     }
-});
+];
+
+function renderNews() {
+    const container = document.getElementById('news-grid');
+    if (!container) return;
+    container.innerHTML = newsData.map(news => `
+        <div class="news-card" onclick="window.open('${news.link}', '_blank')">
+            <img class="news-image" src="${news.image}" alt="новость" onerror="this.src='https://via.placeholder.com/300x140?text=News'">
+            <div class="news-content">
+                <div class="news-title">${escapeHtml(news.title)}</div>
+                <div class="news-meta">${escapeHtml(news.date)}</div>
+                <div class="news-desc">${escapeHtml(news.desc)}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ==================== СЧЁТЧИК ПОСЕЩЕНИЙ ====================
+function initVisitsCounter() {
+    let total = parseInt(localStorage.getItem('visits_total') || '0');
+    let month = parseInt(localStorage.getItem('visits_month') || '0');
+    let today = parseInt(localStorage.getItem('visits_today') || '0');
+    const lastDate = localStorage.getItem('visits_date');
+    const now = new Date().toDateString();
+    if (lastDate !== now) {
+        today = 0;
+        localStorage.setItem('visits_date', now);
+    }
+    today++;
+    month++;
+    total++;
+    localStorage.setItem('visits_today', today);
+    localStorage.setItem('visits_month', month);
+    localStorage.setItem('visits_total', total);
+    const todayEl = document.getElementById('visits-today');
+    const monthEl = document.getElementById('visits-month');
+    const totalEl = document.getElementById('visits-total');
+    if (todayEl) todayEl.innerText = today;
+    if (monthEl) monthEl.innerText = month;
+    if (totalEl) totalEl.innerText = total;
+}
 
 // ==================== ЯНДЕКС КАРТЫ ====================
 function initYandexMap() {
     const mapContainer = document.getElementById('yandex-map');
-    if (!mapContainer) return;
+    if (!mapContainer || typeof ymaps === 'undefined') return;
     try {
         const myMap = new ymaps.Map(mapContainer, {
             center: [53.281104, 50.413633],
@@ -570,21 +708,45 @@ function initYandexMap() {
         }, { preset: 'islands#blueRecyclingIcon' });
         myMap.geoObjects.add(placemark);
     } catch (e) {
-        console.error(e);
         mapContainer.innerHTML = '<p style="color:#c00;">Ошибка загрузки карты</p>';
     }
 }
 
-// Кнопка наверх
+// ==================== КНОПКА НАВЕРХ ====================
 const scrollTopBtn = document.getElementById('scrollTopBtn');
 if (scrollTopBtn) {
     window.onscroll = () => {
         scrollTopBtn.style.display = document.body.scrollTop > 100 || document.documentElement.scrollTop > 100 ? 'block' : 'none';
     };
 }
-function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-// Экспорт глобальных функций
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+document.addEventListener('DOMContentLoaded', () => {
+    showProfileDisplay();
+    initVisitsCounter();
+    renderNews();
+    setMinDateForRequestForm();
+    initChat();
+
+    const currentYear = document.getElementById('currentYear');
+    if (currentYear) currentYear.textContent = new Date().getFullYear();
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.interactive-section, .interactive-item').forEach(el => observer.observe(el));
+
+    if (typeof ymaps !== 'undefined' && document.getElementById('yandex-map')) {
+        ymaps.ready(initYandexMap);
+    }
+});
+
+// ==================== ЭКСПОРТ ====================
 window.openLogin = openLogin;
 window.openRegister = openRegister;
 window.logout = logout;
@@ -593,7 +755,9 @@ window.calcTyres = calcTyres;
 window.sendRequest = sendRequest;
 window.toggleChat = toggleChat;
 window.sendChatMessage = sendChatMessage;
+window.sendUserFile = sendUserFile;
 window.scrollToSection = scrollToSection;
 window.closeSideNav = closeSideNav;
 window.openSideNav = openSideNav;
 window.scrollToTop = scrollToTop;
+window.toggleLegalFields = toggleLegalFields;
