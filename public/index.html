@@ -4,11 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>EcoShyna — Переработка шин с заботой о будущем</title>
-  <!-- Шрифты -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Font Awesome (иконки) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="logoo.png" type="image/png">
@@ -16,9 +14,9 @@
 <body>
   <div class="animated-bg"></div>
 
-  <!-- БОКОВАЯ ПАНЕЛЬ (SIDENAV) -->
+  <!-- БОКОВАЯ ПАНЕЛЬ -->
   <aside id="sideNav" class="sidenav">
-    <a href="javascript:void(0)" class="close-nav-btn" onclick="closeSideNav()" aria-label="Закрыть меню">&times;</a>
+    <a href="javascript:void(0)" class="close-nav-btn" onclick="closeSideNav()">&times;</a>
     <h3 class="sidenav-title">EcoShyna</h3>
     <a href="index.html"><i class="fas fa-home"></i> Главная</a>
     <a href="about.html"><i class="fas fa-leaf"></i> О компании</a>
@@ -49,10 +47,8 @@
   <div id="main-content">
     <header>
       <div class="header-left-content">
-        <button class="open-nav-btn" onclick="openSideNav()" aria-label="Открыть меню"><i class="fas fa-bars"></i> Меню</button>
-        <a href="index.html" class="logo-link">
-          <img src="logoo.png" alt="EcoShyna Logo" class="header-logo">
-        </a>
+        <button class="open-nav-btn" onclick="openSideNav()"><i class="fas fa-bars"></i> Меню</button>
+        <a href="index.html" class="logo-link"><img src="logoo.png" alt="EcoShyna Logo" class="header-logo"></a>
       </div>
       <div class="header-right-content">
         <div class="header-contacts">
@@ -70,8 +66,8 @@
           <h1 class="gradient-text">Экологичный ресайклинг шин <br>в вашем городе</h1>
           <p>Мы превращаем старые шины в ценные материалы, заботясь об окружающей среде и предлагая вам выгодные условия.</p>
           <div class="hero-buttons">
-            <button class="btn-main hero-btn" onclick="scrollToSection('calculator')"><i class="fas fa-chart-line"></i> Рассчитать выгоду</button>
-            <button class="btn-secondary hero-btn" onclick="scrollToSection('request-form')"><i class="fas fa-truck-moving"></i> Заявка на вывоз</button>
+            <button class="btn-main" onclick="scrollToSection('calculator')"><i class="fas fa-chart-line"></i> Рассчитать выгоду</button>
+            <button class="btn-secondary" onclick="scrollToSection('request-form')"><i class="fas fa-truck-moving"></i> Заявка на вывоз</button>
           </div>
         </div>
         <div class="hero-image">
@@ -83,7 +79,7 @@
       <!-- О КОМПАНИИ -->
       <section id="about" class="info-section interactive-section glass-card">
         <h2><i class="fas fa-seedling"></i> О нашей компании</h2>
-        <p>EcoShyna — команда профессионалов, объединённых целью сделать наш мир чище. Мы используем передовые технологии для переработки изношенных шин, минимизируя вредное воздействие на окружающую среду. Наша миссия — не просто утилизировать отходы, а создавать из них новые, полезные продукты.</p>
+        <p>EcoShyna — команда профессионалов, объединённых целью сделать наш мир чище. Мы используем передовые технологии для переработки изношенных шин.</p>
         <ul class="benefits-list">
           <li><i class="fas fa-microchip"></i> Современное оборудование и технологии</li>
           <li><i class="fas fa-chart-line"></i> Строгий контроль качества на каждом этапе</li>
@@ -97,38 +93,19 @@
       <section id="process" class="info-section interactive-section glass-card">
         <h2><i class="fas fa-cogs"></i> Как происходит процесс ресайклинга?</h2>
         <div class="process-steps">
-          <div class="step interactive-item">
-            <div class="step-icon">1</div>
-            <h3>Сбор и транспортировка</h3>
-            <p>Мы принимаем шины от частных лиц и организаций, обеспечивая удобный и безопасный вывоз.</p>
-          </div>
-          <div class="step interactive-item">
-            <div class="step-icon">2</div>
-            <h3>Измельчение</h3>
-            <p>Шины проходят этап дробления на мелкие фракции для дальнейшей переработки.</p>
-          </div>
-          <div class="step interactive-item">
-            <div class="step-icon">3</div>
-            <h3>Разделение материалов</h3>
-            <p>С помощью специального оборудования резиновая крошка отделяется от металлокорда и текстиля.</p>
-          </div>
-          <div class="step interactive-item">
-            <div class="step-icon">4</div>
-            <h3>Производство</h3>
-            <p>Полученные материалы используются для изготовления широкого спектра продукции.</p>
-          </div>
+          <div class="step interactive-item"><div class="step-icon">1</div><h3>Сбор и транспортировка</h3><p>Принимаем шины от частных лиц и организаций.</p></div>
+          <div class="step interactive-item"><div class="step-icon">2</div><h3>Измельчение</h3><p>Дробление на мелкие фракции для переработки.</p></div>
+          <div class="step interactive-item"><div class="step-icon">3</div><h3>Разделение материалов</h3><p>Отделение крошки от металлокорда и текстиля.</p></div>
+          <div class="step interactive-item"><div class="step-icon">4</div><h3>Производство</h3><p>Изготовление широкого спектра продукции.</p></div>
         </div>
       </section>
 
       <!-- КАЛЬКУЛЯТОР -->
       <section id="calculator" class="info-section interactive-section glass-card">
         <h2><i class="fas fa-calculator"></i> Калькулятор переработки шин</h2>
-        <p>Введите вес шин, которые вы хотите сдать, и узнайте, сколько вы получите и что можно из них произвести.</p>
+        <p>Введите вес шин, которые вы хотите сдать, и узнайте выгоду.</p>
         <form id="calc-form" onsubmit="return calcTyres(event)">
-          <div class="form-group">
-            <label for="tyre-weight">Вес шин (кг)</label>
-            <input type="number" id="tyre-weight" min="1" placeholder="Например, 100" required>
-          </div>
+          <div class="form-group"><label for="tyre-weight">Вес шин (кг)</label><input type="number" id="tyre-weight" min="1" placeholder="Например, 100" required></div>
           <button class="btn-main" type="submit"><i class="fas fa-chart-simple"></i> Рассчитать</button>
         </form>
         <div id="calc-result" class="calc-result" style="display: none;"></div>
@@ -138,74 +115,30 @@
       <section id="products" class="info-section interactive-section glass-card">
         <h2><i class="fas fa-boxes"></i> Что можно изготовить из переработанных шин?</h2>
         <div class="products-grid">
-          <div class="product-item interactive-item">
-            <img src="replit.jpg" alt="Резиновая плитка">
-            <h3>Резиновая плитка</h3>
-            <p>Идеальное покрытие для детских и спортивных площадок, садовых дорожек.</p>
-          </div>
-          <div class="product-item interactive-item">
-            <img src="replosh.jpg" alt="Спортивные площадки">
-            <h3>Покрытия для спортплощадок</h3>
-            <p>Безопасные и долговечные покрытия для стадионов и спортзалов.</p>
-          </div>
-          <div class="product-item interactive-item">
-            <img src="redor.jpg" alt="Дорожное покрытие">
-            <h3>Компоненты для дорожного покрытия</h3>
-            <p>Использование резиновой крошки улучшает качество и долговечность дорог.</p>
-          </div>
+          <div class="product-item interactive-item"><img src="replit.jpg" alt="Резиновая плитка"><h3>Резиновая плитка</h3><p>Для детских и спортивных площадок.</p></div>
+          <div class="product-item interactive-item"><img src="replosh.jpg" alt="Спортивные площадки"><h3>Покрытия для спортплощадок</h3><p>Безопасные и долговечные покрытия.</p></div>
+          <div class="product-item interactive-item"><img src="redor.jpg" alt="Дорожное покрытие"><h3>Компоненты для дорожного покрытия</h3><p>Улучшают качество дорог.</p></div>
         </div>
         <p class="highlight-text">Удивительно, сколько полезных вещей можно создать из отходов!</p>
-        <div class="section-logo-bg"><img src="logoo.png" alt="EcoShyna"></div>
       </section>
 
       <!-- ФОРМА ЗАЯВКИ -->
       <section id="request-form" class="info-section interactive-section glass-card">
         <h2><i class="fas fa-file-signature"></i> Оформить заявку на вывоз шин</h2>
-        <p>Заполните форму, и мы свяжемся с вами для уточнения деталей. <strong>Минимальный вес для вывоза — 20 кг.</strong> Для веса менее 20 кг возможен только самовывоз.</p>
+        <p><strong>Минимальный вес для вывоза — 20 кг.</strong> Для веса менее 20 кг возможен только самовывоз.</p>
         <form id="request-form-data" onsubmit="return sendRequest(event)">
           <div class="form-grid">
-            <div class="form-group">
-              <label for="req-name"><i class="fas fa-user"></i> Ваше ФИО</label>
-              <input type="text" id="req-name" name="name" required>
-            </div>
-            <div class="form-group">
-              <label for="req-phone"><i class="fas fa-phone"></i> Телефон</label>
-              <input type="tel" id="req-phone" name="phone" required>
-            </div>
-            <div class="form-group">
-              <label for="req-email"><i class="fas fa-envelope"></i> Email (необязательно)</label>
-              <input type="email" id="req-email" name="email">
-            </div>
-            <div class="form-group">
-              <label for="req-city"><i class="fas fa-city"></i> Город</label>
-              <input type="text" id="req-city" name="city" required>
-            </div>
-            <div class="form-group">
-              <label for="req-street"><i class="fas fa-road"></i> Улица</label>
-              <input type="text" id="req-street" name="street" required>
-            </div>
-            <div class="form-group">
-              <label for="req-house"><i class="fas fa-building"></i> Номер дома</label>
-              <input type="text" id="req-house" name="house" required>
-            </div>
-            <div class="form-group">
-              <label for="req-weight"><i class="fas fa-weight-hanging"></i> Примерный вес шин (кг)</label>
-              <input type="number" id="req-weight" name="weight" min="1" required>
-            </div>
-            <div class="form-group">
-              <label for="req-date"><i class="fas fa-calendar-alt"></i> Желаемая дата вывоза</label>
-              <input type="date" id="req-date" name="date" required>
-            </div>
-            <div class="form-group">
-              <label for="req-time"><i class="fas fa-clock"></i> Желаемое время вывоза (08:00–19:00)</label>
-              <input type="time" id="req-time" name="time" required>
-            </div>
+            <div class="form-group"><label for="req-name"><i class="fas fa-user"></i> Ваше ФИО</label><input type="text" id="req-name" name="name" required></div>
+            <div class="form-group"><label for="req-phone"><i class="fas fa-phone"></i> Телефон</label><input type="tel" id="req-phone" name="phone" required></div>
+            <div class="form-group"><label for="req-email"><i class="fas fa-envelope"></i> Email</label><input type="email" id="req-email" name="email"></div>
+            <div class="form-group"><label for="req-city"><i class="fas fa-city"></i> Город</label><input type="text" id="req-city" name="city" required></div>
+            <div class="form-group"><label for="req-street"><i class="fas fa-road"></i> Улица</label><input type="text" id="req-street" name="street" required></div>
+            <div class="form-group"><label for="req-house"><i class="fas fa-building"></i> Номер дома</label><input type="text" id="req-house" name="house" required></div>
+            <div class="form-group"><label for="req-weight"><i class="fas fa-weight-hanging"></i> Вес (кг)</label><input type="number" id="req-weight" name="weight" min="40" required></div>
+            <div class="form-group"><label for="req-date"><i class="fas fa-calendar-alt"></i> Дата вывоза</label><input type="date" id="req-date" name="date" required></div>
+            <div class="form-group"><label for="req-time"><i class="fas fa-clock"></i> Время (08:00–19:00)</label><input type="time" id="req-time" name="time" required></div>
           </div>
           <input type="hidden" id="req-submittedAt" name="submittedAt">
-          <div class="form-group">
-            <div id="recaptcha-request" class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
-            <small>Подтвердите, что вы не робот</small>
-          </div>
           <button class="btn-main" type="submit"><i class="fas fa-paper-plane"></i> Отправить заявку</button>
         </form>
         <div id="request-result" class="request-result" style="display:none;"></div>
@@ -213,31 +146,34 @@
 
       <!-- ОТЗЫВЫ -->
       <section id="reviews" class="info-section interactive-section glass-card">
-        <h2><i class="fas fa-comments"></i> Отзывы наших клиентов</h2>
+        <h2><i class="fas fa-comments"></i> Отзывы клиентов</h2>
         <div class="reviews-list">
-          <div class="review-item interactive-item">
-            <p>«Отличный сервис! Ребята быстро вывезли шины 🚚💨, и я получил за это деньги. Рекомендую!»</p>
-            <span class="reviewer">— Санат, частный клиент</span>
-          </div>
-          <div class="review-item interactive-item">
-            <p>«Удобный график вывоза и прозрачные условия 👍. Рассматриваем на дальнейшее сотрудничество.»</p>
-            <span class="reviewer">— ООО "АвтоПлюс"</span>
-          </div>
-          <div class="review-item interactive-item">
-            <p>«В гараже скопилось немало шин за долгое время, решил отвезти всё на переработку в ЭкоШину, никогда ещё уборка не приносила удовольствия и денег 😅»</p>
-            <span class="reviewer">— Константин, частный клиент</span>
-          </div>
+          <div class="review-item interactive-item"><p>«Отлично! Быстро вывезли шины, получил деньги. Рекомендую!»</p><span class="reviewer">— Санат</span></div>
+          <div class="review-item interactive-item"><p>«Удобный график и прозрачные условия. Будем сотрудничать.»</p><span class="reviewer">— ООО "АвтоПлюс"</span></div>
+          <div class="review-item interactive-item"><p>«Скопилось много шин, решил сдать в ЭкоШину — доволен!»</p><span class="reviewer">— Константин</span></div>
         </div>
       </section>
 
-      <!-- КОНТАКТЫ + КАРТА + СТАТИСТИКА -->
+      <!-- НОВОСТИ + СТАТИСТИКА ПОСЕЩЕНИЙ -->
+      <section class="glass-card news-stats-section">
+        <div class="news-stats-header">
+          <h2><i class="fas fa-newspaper"></i> Новости индустрии</h2>
+          <div class="stats-mini">
+            <span>👁️ Сегодня: <span id="visits-today">0</span></span>
+            <span>📅 Месяц: <span id="visits-month">0</span></span>
+            <span>📊 Всего: <span id="visits-total">0</span></span>
+          </div>
+        </div>
+        <div id="news-grid" class="news-grid"></div>
+      </section>
+
+      <!-- КОНТАКТЫ + КАРТА + СТАТИСТИКА ПЕРЕРАБОТКИ -->
       <section id="contacts" class="info-section interactive-section glass-card">
         <h2><i class="fas fa-address-card"></i> Контакты</h2>
-        <p>Свяжитесь с нами, чтобы узнать больше о наших услугах или оставить заявку.</p>
         <div class="contact-details">
           <p><i class="fas fa-phone-alt"></i> <strong>Телефон:</strong> <a href="tel:+79997854929">+7 (999) 785 4929</a></p>
           <p><i class="fas fa-envelope"></i> <strong>Email:</strong> <a href="mailto:eco@recycle.ru">eco@recycle.ru</a></p>
-          <p><i class="fas fa-map-marker-alt"></i> <strong>Адрес:</strong> Аграрная улица, 1, посёлок городского типа Стройкерамика, городское поселение Смышляевка, Волжский район, Самарская область</p>
+          <p><i class="fas fa-map-marker-alt"></i> <strong>Адрес:</strong> Аграрная улица, 1, пгт. Стройкерамика, Самарская обл.</p>
           <div id="yandex-map" class="yandex-map-container"></div>
         </div>
         <div class="stats-container">
@@ -250,20 +186,16 @@
 
     <footer>
       <div class="footer-content">
-        <div class="footer-logo">
-          <img src="logoo.png" alt="EcoShyna">
-          <p>EcoShyna</p>
-        </div>
+        <div class="footer-logo"><img src="logoo.png" alt="EcoShyna"><p>EcoShyna</p></div>
         <div class="footer-contacts">
           <h3>Свяжитесь с нами:</h3>
-          <p><i class="fas fa-phone-alt"></i> Телефон: <a href="tel:+79997854929">+7 (999) 785 4929</a></p>
-          <p><i class="fas fa-envelope"></i> Email: <a href="mailto:eco@recycle.ru">eco@recycle.ru</a></p>
-          <p><i class="fas fa-map-marker-alt"></i> Адрес: Аграрная улица, 1, пгт. Стройкерамика, Самарская обл.</p>
+          <p><i class="fas fa-phone-alt"></i> <a href="tel:+79997854929">+7 (999) 785 4929</a></p>
+          <p><i class="fas fa-envelope"></i> <a href="mailto:eco@recycle.ru">eco@recycle.ru</a></p>
+          <p><i class="fas fa-map-marker-alt"></i> Аграрная ул., 1, пгт. Стройкерамика</p>
         </div>
         <div class="footer-info">
           <p>&copy; <span id="currentYear"></span> EcoShyna. Все права защищены.</p>
           <p>Переработка шин с заботой о будущем.</p>
-          <p>Разработано с ❤️ для чистой планеты!</p>
         </div>
       </div>
     </footer>
@@ -273,28 +205,33 @@
   <div id="modal-bg" class="modal-bg"></div>
   <div id="modal-content-wrapper" class="modal-content-wrapper"></div>
 
+  <!-- ЛОАДЕР -->
+  <div id="loader-overlay" class="loader-overlay">
+    <div class="loader-box glass-card">
+      <img id="loader-gif" src="16.gif" alt="загрузка">
+      <div id="loader-text">Загрузка<span class="dots">...</span></div>
+      <div class="progress-bar"><div id="progress-fill"></div></div>
+    </div>
+  </div>
+
   <!-- КНОПКА НАВЕРХ -->
   <button id="scrollTopBtn" title="Наверх" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></button>
 
   <!-- ЧАТ-ВИДЖЕТ -->
   <div id="chat-widget" class="chat-widget">
-    <button onclick="toggleChat()" class="chat-btn" title="Связаться с нами"><i class="fas fa-comment-dots"></i></button>
+    <button onclick="toggleChat()" class="chat-btn"><i class="fas fa-comment-dots"></i></button>
     <div id="chat-window" class="chat-window" style="display: none;">
-      <div class="chat-header">
-        <h4>Чат поддержки EcoShyna</h4>
-        <button onclick="toggleChat()">×</button>
-      </div>
-      <div id="chat-messages" class="chat-messages">
-        <div class="message bot">Здравствуйте! Я помощник EcoShyna. Задайте вопрос, и я постараюсь помочь. Если вопрос сложный, мы свяжем вас с оператором.</div>
-      </div>
+      <div class="chat-header"><h4>Чат поддержки</h4><button onclick="toggleChat()">×</button></div>
+      <div id="chat-messages" class="chat-messages"><div class="message bot">Здравствуйте! Я помощник EcoShyna. Задайте вопрос.</div></div>
       <div class="chat-input-area">
-        <input type="text" id="chat-input" placeholder="Напишите сообщение...">
-        <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
-      </div>
+    <input type="text" id="chat-input" placeholder="Напишите сообщение..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+    <input type="file" id="user-chat-file" accept="image/*" style="display:none" onchange="sendUserFile()">
+    <button onclick="document.getElementById('user-chat-file').click()"><i class="fas fa-image"></i></button>
+    <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+</div>
     </div>
   </div>
 
-  <!-- Скрипты -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=ВАШ_API_КЛЮЧ_ЯНДЕКС_КАРТ"></script>
   <script src="script.js"></script>
