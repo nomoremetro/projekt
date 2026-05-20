@@ -9,13 +9,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.0",
-    "express": "^5.1.0",
+    "express": "^5.2.1",
     "express-rate-limit": "^7.5.0",
-    "express-validator": "^7.2.1",
+    "express-validator": "^7.3.2",
+    "multer": "^2.1.1",
     "projekt": "file:",
-    "sanitize-html": "^2.16.0"
-  }
+    "sanitize-html": "^2.16.0",
+    "sqlite3": "^6.0.1"
+  },
+  "description": ""
 }
