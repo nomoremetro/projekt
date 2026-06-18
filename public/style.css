@@ -109,21 +109,39 @@ p, li, .form-group label, .step p, .product-item p, .review-item p {
   background: rgba(255, 255, 255, 0.85);
 }
 
+/* ========== ОВЕРЛЕЙ БОКОВОГО МЕНЮ ========== */
+.sidenav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1099;
+  backdrop-filter: blur(2px);
+}
+.sidenav-overlay.active {
+  display: block;
+}
+
 /* ========== БОКОВАЯ ПАНЕЛЬ ========== */
 .sidenav {
   height: 100%;
-  width: 0;
+  width: 270px;
   position: fixed;
   z-index: 1100;
   top: 0;
   left: 0;
-  background: rgba(10, 37, 64, 0.95);
+  background: rgba(10, 37, 64, 0.97);
   backdrop-filter: blur(20px);
   overflow-x: hidden;
-  transition: 0.3s ease;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
   padding-top: 70px;
-  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  transform: translateX(-100%);
+}
+.sidenav.open {
+  transform: translateX(0);
 }
 
 .sidenav a, .sidenav .nav-btn {
@@ -151,17 +169,31 @@ p, li, .form-group label, .step p, .product-item p, .review-item p {
 
 .sidenav .close-nav-btn {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  font-size: 28px;
-  color: white;
-  padding: 0;
-  background: transparent;
+  top: 16px;
+  right: 16px;
+  font-size: 1rem;
+  color: rgba(255,255,255,0.8);
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  width: auto;
+}
+
+.sidenav .close-nav-btn::after {
+  content: 'Закрыть';
+  font-size: 0.8rem;
 }
 
 .sidenav .close-nav-btn:hover {
-  background: transparent;
-  transform: rotate(90deg);
+  background: rgba(255,255,255,0.22);
+  color: white;
+  padding-left: 12px;
 }
 
 .sidenav-title {
@@ -212,17 +244,6 @@ header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.open-nav-btn {
-  background: none;
-  border: none;
-  font-size: 1.4rem;
-  color: #0a2540;
-  cursor: pointer;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 
 .header-logo {
   height: 56px;
@@ -879,6 +900,90 @@ footer {
   transform: translateY(0);
 }
 
+/* ========== AUTH NOTICE (требуется авторизация) ========== */
+.request-result.auth-notice {
+  border-left-color: #f39c12;
+  background: rgba(243, 156, 18, 0.08);
+  padding: 1.2rem 1.5rem;
+}
+
+.auth-required-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.auth-required-notice i {
+  font-size: 1.5rem;
+  color: #f39c12;
+  margin-bottom: 0.25rem;
+}
+
+.auth-required-notice strong {
+  font-size: 1rem;
+  color: #0a2540;
+}
+
+.auth-required-notice p {
+  color: #555;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+/* ========== AVATAR FEEDBACK ========== */
+.avatar-feedback.success {
+  background: rgba(46, 204, 113, 0.15);
+  color: #1a7a45;
+  border-radius: 20px;
+}
+.avatar-feedback.error {
+  background: rgba(231, 76, 60, 0.12);
+  color: #c0392b;
+  border-radius: 20px;
+}
+
+/* ========== УЛУЧШЕНИЕ КНОПКИ МЕНЮ ========== */
+.open-nav-btn {
+  background: rgba(44, 125, 160, 0.1);
+  border: 1px solid rgba(44, 125, 160, 0.25);
+  border-radius: 12px;
+  font-size: 1rem;
+  color: #0a2540;
+  cursor: pointer;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+.open-nav-btn:hover {
+  background: rgba(44, 125, 160, 0.18);
+}
+
+/* ========== УЛУЧШЕНИЕ LOGIN BTN ========== */
+.sidenav .login-btn {
+  background: rgba(44, 125, 160, 0.3) !important;
+  border-radius: 12px !important;
+  margin: 0 12px !important;
+  width: calc(100% - 24px) !important;
+}
+.sidenav .register-btn {
+  background: rgba(46, 204, 113, 0.25) !important;
+  border-radius: 12px !important;
+  margin: 0 12px !important;
+  width: calc(100% - 24px) !important;
+}
+
+/* ========== УЛУЧШЕНИЕ ФОРМЫ ЗАЯВКИ ========== */
+#request-form-data .btn-main {
+  margin-top: 0.5rem;
+  width: 100%;
+  justify-content: center;
+  padding: 14px;
+  font-size: 1rem;
+}
+
 /* ========== АДАПТИВНОСТЬ ========== */
 @media (max-width: 992px) {
   .header-contacts { display: none; }
@@ -894,10 +999,17 @@ footer {
   .news-grid { grid-template-columns: 1fr; }
   .news-stats-header { flex-direction: column; align-items: flex-start; }
   .stats-mini { flex-wrap: wrap; }
-  .chat-window { width: 280px; height: 400px; }
+  .chat-window { width: calc(100vw - 32px); max-width: 340px; height: 420px; right: 0; }
+  .chat-widget { right: 16px; bottom: 16px; }
+  #scrollTopBtn { right: 16px; bottom: 80px; }
   .footer-content { flex-direction: column; text-align: center; }
   h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); }
   h2 { font-size: clamp(1.3rem, 4vw, 1.8rem); }
+  .modal { padding: 1.5rem; border-radius: 24px; width: 94vw; }
+  .auth-required-notice .btn-main,
+  .auth-required-notice .btn-secondary { font-size: 0.8rem; padding: 9px 16px; }
+  header { padding: 0.6rem 1rem; }
+  .header-left-content { gap: 10px; }
 }
 
 /* Перетаскиваемые модальные окна */
