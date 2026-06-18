@@ -73,12 +73,18 @@ document.addEventListener('keydown', (event) => {
 // ==================== БОКОВАЯ ПАНЕЛЬ ====================
 function openSideNav() {
     const sideNav = document.getElementById('sideNav');
-    if (sideNav) sideNav.style.width = '250px';
+    const overlay = document.getElementById('sidenav-overlay');
+    if (sideNav) sideNav.classList.add('open');
+    if (overlay) overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
 }
 
 function closeSideNav() {
     const sideNav = document.getElementById('sideNav');
-    if (sideNav) sideNav.style.width = '0';
+    const overlay = document.getElementById('sidenav-overlay');
+    if (sideNav) sideNav.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 // ==================== ПРОКРУТКА ====================
@@ -141,6 +147,7 @@ function openLogin() {
             </div>
             <button class="btn-main" type="submit" style="width:100%;">Войти</button>
         </form>
+        <p style="text-align:center;margin-top:1rem;font-size:0.9rem;">Нет аккаунта? <a href="#" onclick="openRegister()" style="color:#2c7da0;">Зарегистрироваться</a></p>
         <div id="login-error" class="request-result error-message" style="display:none;"></div>
     `);
 }
@@ -211,6 +218,7 @@ function openRegister() {
             </div>
             <button class="btn-main" type="submit" style="width:100%;">Зарегистрироваться</button>
         </form>
+        <p style="text-align:center;margin-top:1rem;font-size:0.9rem;">Уже есть аккаунт? <a href="#" onclick="openLogin()" style="color:#2c7da0;">Войти</a></p>
         <div id="register-error" class="request-result error-message" style="display:none;"></div>
     `);
 }
@@ -248,8 +256,7 @@ async function register(e) {
             showLoader(true);
             setTimeout(() => {
                 hideLoader();
-                alert('Регистрация успешна! Теперь войдите.');
-                closeModal();
+                openLogin();
             }, 1500);
         } else {
             hideLoader();
@@ -295,43 +302,73 @@ function showProfileDisplay() {
 }
 
 // ==================== НАСТРОЙКИ ПРОФИЛЯ ====================
-function handleProfileImageUpload(event) {
+async function handleProfileImageUpload(event) {
     const file = event.target.files[0];
-    if (file && loggedInUser) {
-        if (file.size > 2 * 1024 * 1024) {
-            alert('Файл слишком большой. Максимум 2MB.');
-            event.target.value = '';
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const newAvatar = e.target.result;
-            loggedInUser.avatar = newAvatar;
-            updateLoggedInUserStorage();
-            const userIndex = users.findIndex(u => u.username === loggedInUser.username);
-            if (userIndex !== -1) users[userIndex].avatar = newAvatar;
-            updateUsersStorage();
-            document.getElementById('profileImageSidenav').src = newAvatar;
-        };
-        reader.readAsDataURL(file);
+    if (!file || !loggedInUser) return;
+    if (file.size > 2 * 1024 * 1024) {
+        alert('Файл слишком большой. Максимум 2MB.');
+        event.target.value = '';
+        return;
     }
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const newAvatar = e.target.result;
+
+        const previewImg = document.getElementById('profileImageModal');
+        if (previewImg) previewImg.src = newAvatar;
+
+        try {
+            const res = await fetch('/api/auth/update-avatar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: loggedInUser.id, avatar: newAvatar })
+            });
+            const data = await res.json();
+            if (data.success) {
+                loggedInUser.avatar = newAvatar;
+                updateLoggedInUserStorage();
+                const sidenavImg = document.getElementById('profileImageSidenav');
+                if (sidenavImg) sidenavImg.src = newAvatar;
+                showAvatarFeedback('✅ Фото обновлено!', 'success');
+            } else {
+                showAvatarFeedback('Ошибка сохранения фото', 'error');
+            }
+        } catch (err) {
+            showAvatarFeedback('Ошибка соединения', 'error');
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+function showAvatarFeedback(msg, type) {
+    const fb = document.getElementById('avatar-feedback');
+    if (!fb) return;
+    fb.textContent = msg;
+    fb.className = `avatar-feedback ${type}`;
+    fb.style.display = 'block';
+    setTimeout(() => { fb.style.display = 'none'; }, 2500);
 }
 
 function openProfileSettings() {
     if (!loggedInUser) return;
     openModal(`
         <h2>Настройки профиля</h2>
-        <form id="profile-settings-form" onsubmit="return saveProfileSettings(event)">
-            <div style="text-align:center; margin-bottom:1rem;">
-                <img id="profileImageModal" src="${loggedInUser.avatar || defaultAvatar}" alt="Аватар" style="width:80px; height:80px; border-radius:50%; object-fit:cover;">
-                <input type="file" id="profileImageUploadModal" accept="image/*" style="display:none;">
-                <button type="button" class="btn-secondary" style="font-size:0.8rem;" onclick="document.getElementById('profileImageUploadModal').click()">Сменить фото</button>
+        <div style="text-align:center; margin-bottom:1.2rem;">
+            <div style="position:relative;display:inline-block;">
+                <img id="profileImageModal" src="${loggedInUser.avatar || defaultAvatar}" alt="Аватар" style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #2c7da0;">
+                <label for="profileImageUploadModal" style="position:absolute;bottom:0;right:0;background:#2c7da0;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.9rem;" title="Сменить фото"><i class="fas fa-camera"></i></label>
             </div>
-            <div class="form-group"><label>Имя пользователя</label><input type="text" id="settings-username" value="${loggedInUser.username}" required></div>
-            <div class="form-group"><label>Email</label><input type="email" id="settings-email" value="${loggedInUser.email}" required></div>
-            <div class="form-group"><label>Новый пароль</label><input type="password" id="settings-new-pass" minlength="8" pattern="^(?=.*\\d).{8,}$"></div>
-            <div class="form-group"><label>Текущий пароль</label><input type="password" id="settings-current-pass" required></div>
-            <button class="btn-main" type="submit">Сохранить</button>
+            <input type="file" id="profileImageUploadModal" accept="image/*" style="display:none;">
+            <div id="avatar-feedback" style="display:none;margin-top:0.5rem;font-size:0.85rem;padding:4px 12px;border-radius:20px;"></div>
+        </div>
+        <form id="profile-settings-form" onsubmit="return saveProfileSettings(event)">
+            <div class="form-group"><label>Имя пользователя</label><input type="text" id="settings-username" value="${loggedInUser.username}"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="settings-email" value="${loggedInUser.email}"></div>
+            <hr style="margin:1rem 0;border-color:rgba(0,0,0,0.1);">
+            <p style="font-size:0.85rem;color:#666;margin-bottom:0.75rem;">Чтобы изменить данные или пароль, введите текущий пароль:</p>
+            <div class="form-group"><label>Текущий пароль</label><input type="password" id="settings-current-pass" placeholder="Обязательно для сохранения"></div>
+            <div class="form-group"><label>Новый пароль <span style="font-size:0.8rem;color:#999;">(если хотите сменить)</span></label><input type="password" id="settings-new-pass" minlength="8" placeholder="Оставьте пустым, если не меняете"></div>
+            <button class="btn-main" type="submit" style="width:100%;">Сохранить изменения</button>
         </form>
         <div id="settings-feedback" style="display:none; margin-top:1rem;"></div>
     `);
@@ -364,12 +401,12 @@ async function saveProfileSettings(e) {
     }
 
     const updates = {};
-    if (newUsername !== loggedInUser.username) updates.username = newUsername;
-    if (newEmail !== loggedInUser.email) updates.email = newEmail;
+    if (newUsername && newUsername !== loggedInUser.username) updates.username = newUsername;
+    if (newEmail && newEmail !== loggedInUser.email) updates.email = newEmail;
     if (newPass) updates.password = newPass;
 
     if (Object.keys(updates).length === 0) {
-        showError(feedback, 'Нет изменений.', 'success');
+        showError(feedback, 'Нет изменений для сохранения.', 'success');
         return false;
     }
 
@@ -383,8 +420,8 @@ async function saveProfileSettings(e) {
         loggedInUser = { ...loggedInUser, ...result.user };
         updateLoggedInUserStorage();
         showProfileDisplay();
-        showError(feedback, 'Изменения сохранены.', 'success');
-        setTimeout(closeModal, 1500);
+        showError(feedback, '✅ Изменения сохранены!', 'success');
+        setTimeout(closeModal, 1800);
     } else {
         showError(feedback, result.message || 'Ошибка сохранения.', 'error-message');
     }
@@ -427,6 +464,24 @@ async function sendRequest(e) {
     const resultDiv = document.getElementById('request-result');
     if (!form) return false;
 
+    // Проверка авторизации
+    if (!loggedInUser) {
+        resultDiv.innerHTML = `
+            <div class="auth-required-notice">
+                <i class="fas fa-lock"></i>
+                <strong>Для подачи заявки необходимо войти в аккаунт</strong>
+                <p>Ваши данные сохранены — войдите или зарегистрируйтесь, и заявка отправится.</p>
+                <div style="display:flex;gap:0.75rem;margin-top:0.75rem;flex-wrap:wrap;">
+                    <button class="btn-main" onclick="openLogin()" style="padding:10px 20px;font-size:0.85rem;"><i class="fas fa-sign-in-alt"></i> Войти</button>
+                    <button class="btn-secondary" onclick="openRegister()" style="padding:10px 20px;font-size:0.85rem;"><i class="fas fa-user-plus"></i> Зарегистрироваться</button>
+                </div>
+            </div>
+        `;
+        resultDiv.className = 'request-result auth-notice';
+        resultDiv.style.display = 'block';
+        return false;
+    }
+
     const weight = parseFloat(document.getElementById('req-weight').value);
     if (weight < 20) {
         if (!confirm('Минимальный вес для вывоза — 20 кг. Вы можете привезти шины сами. Продолжить оформление?')) {
@@ -435,33 +490,45 @@ async function sendRequest(e) {
     }
 
     showLoader(false);
-    const formData = new URLSearchParams(new FormData(form));
-    formData.append('submittedAt', new Date().toISOString());
-    if (loggedInUser) formData.append('userId', loggedInUser.id);
+
+    const payload = {
+        name: document.getElementById('req-name').value,
+        phone: document.getElementById('req-phone').value,
+        email: document.getElementById('req-email').value,
+        city: document.getElementById('req-city').value,
+        street: document.getElementById('req-street').value,
+        house: document.getElementById('req-house').value,
+        weight: document.getElementById('req-weight').value,
+        date: document.getElementById('req-date').value,
+        time: document.getElementById('req-time').value,
+        submittedAt: new Date().toISOString(),
+        userId: loggedInUser.id
+    };
 
     try {
         const response = await fetch('/api/request', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: formData
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
         if (response.ok) {
-            const text = await response.text();
             showLoader(true);
             setTimeout(() => {
                 hideLoader();
-                showError(resultDiv, text, 'success');
+                resultDiv.innerHTML = `<i class="fas fa-check-circle" style="color:#2ecc71;"></i> Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.`;
+                resultDiv.className = 'request-result success';
+                resultDiv.style.display = 'block';
                 form.reset();
                 setMinDateForRequestForm();
             }, 1500);
         } else {
             hideLoader();
             const err = await response.json();
-            showError(resultDiv, err.message || 'Ошибка отправки', 'error-message');
+            showError(resultDiv, err.message || 'Ошибка отправки. Проверьте данные.', 'error-message');
         }
     } catch (err) {
         hideLoader();
-        showError(resultDiv, 'Ошибка соединения', 'error-message');
+        showError(resultDiv, 'Ошибка соединения с сервером. Попробуйте ещё раз.', 'error-message');
     }
     return false;
 }
@@ -507,7 +574,6 @@ async function initChat() {
         guestId = 'guest_' + Math.random().toString(36).substr(2, 8);
         localStorage.setItem('guestId', guestId);
     }
-    // Определяем имя пользователя (если залогинен — берём username)
     let guestName = 'Гость';
     if (loggedInUser && loggedInUser.username) {
         guestName = loggedInUser.username;
@@ -518,8 +584,8 @@ async function initChat() {
         const res = await fetch('/api/chat/start', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                guestId, 
+            body: JSON.stringify({
+                guestId,
                 guestName: guestName,
                 userId: loggedInUser ? loggedInUser.id : null
             })
@@ -536,6 +602,10 @@ function toggleChat() {
     if (!win) return;
     chatOpen = !chatOpen;
     win.style.display = chatOpen ? 'flex' : 'none';
+    if (chatOpen) {
+        const msgs = document.getElementById('chat-messages');
+        if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    }
 }
 
 async function sendChatMessage() {
@@ -543,8 +613,7 @@ async function sendChatMessage() {
     const message = input.value.trim();
     if (!message) return;
     const messagesContainer = document.getElementById('chat-messages');
-    
-    // Определяем имя пользователя для отображения в админке
+
     let displayName = 'Гость';
     if (loggedInUser && loggedInUser.username) {
         displayName = loggedInUser.username;
@@ -556,20 +625,21 @@ async function sendChatMessage() {
         }
         displayName = `Гость ${guestId.slice(-5)}`;
     }
-    
+
     const userMsgDiv = document.createElement('div');
     userMsgDiv.className = 'message user';
     userMsgDiv.innerText = message;
     messagesContainer.appendChild(userMsgDiv);
     input.value = '';
-    
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                message, 
-                userId: loggedInUser ? loggedInUser.id : null, 
+            body: JSON.stringify({
+                message,
+                userId: loggedInUser ? loggedInUser.id : null,
                 dialogId: currentDialogId,
                 userName: displayName
             })
@@ -589,17 +659,17 @@ async function sendUserFile() {
     const fileInput = document.getElementById('user-chat-file');
     const file = fileInput.files[0];
     if (!file || !currentDialogId) return;
-    
+
     if (!file.type.startsWith('image/')) {
         alert('Можно отправлять только изображения!');
         fileInput.value = '';
         return;
     }
-    
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('dialogId', currentDialogId);
-    
+
     try {
         const res = await fetch('/api/chat/user-upload', {
             method: 'POST',
@@ -715,9 +785,9 @@ function initYandexMap() {
 // ==================== КНОПКА НАВЕРХ ====================
 const scrollTopBtn = document.getElementById('scrollTopBtn');
 if (scrollTopBtn) {
-    window.onscroll = () => {
-        scrollTopBtn.style.display = document.body.scrollTop > 100 || document.documentElement.scrollTop > 100 ? 'block' : 'none';
-    };
+    window.addEventListener('scroll', () => {
+        scrollTopBtn.style.display = document.documentElement.scrollTop > 300 ? 'block' : 'none';
+    });
 }
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -744,6 +814,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof ymaps !== 'undefined' && document.getElementById('yandex-map')) {
         ymaps.ready(initYandexMap);
     }
+
+    // Закрытие бокового меню свайпом влево на мобильных
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const sideNav = document.getElementById('sideNav');
+        if (sideNav && sideNav.classList.contains('open') && dx < -60) {
+            closeSideNav();
+        }
+    }, { passive: true });
 });
 
 // ==================== ЭКСПОРТ ====================
