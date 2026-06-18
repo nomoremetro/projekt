@@ -19,6 +19,11 @@
     "projekt": "file:",
     "sanitize-html": "^2.16.0",
     "sqlite3": "^6.0.1"
+                                                                      {
+  "overrides": {
+    "sqlite3": "5.1.7"
+  }
+                                                                      }
   },
   "description": ""
 }
